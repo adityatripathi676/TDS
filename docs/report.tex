@@ -1,0 +1,1272 @@
+% ============================================================
+%  AI-HIDS Sentinel — Comprehensive Technical Report
+%  Overleaf-ready (pdflatex)
+%  Packages: geometry, graphicx, hyperref, listings, booktabs,
+%            enumitem, xcolor, fancyhdr, titlesec, tcolorbox
+% ============================================================
+\documentclass[12pt,a4paper]{article}
+
+% ── Core packages ────────────────────────────────────────────
+\usepackage[a4paper, margin=2.5cm, top=3cm, bottom=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{float}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{mdframed}
+\usepackage{setspace}
+
+% ── Colour palette ────────────────────────────────────────────
+\definecolor{primary}{HTML}{6366F1}      % Indigo
+\definecolor{danger}{HTML}{EF4444}       % Red
+\definecolor{warning}{HTML}{F59E0B}      % Amber
+\definecolor{success}{HTML}{10B981}      % Emerald
+\definecolor{code-bg}{HTML}{1E1E2E}      % Dark background
+\definecolor{code-fg}{HTML}{CDD6F4}      % Light text
+\definecolor{codekw}{HTML}{CBA6F7}       % Purple keyword
+\definecolor{codestr}{HTML}{A6E3A1}      % Green string
+\definecolor{codecom}{HTML}{6C7086}      % Grey comment
+\definecolor{lightgray}{HTML}{F3F4F6}
+\definecolor{darkgray}{HTML}{374151}
+
+% ── Hyperref setup ───────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=primary,
+    citecolor=primary,
+    pdftitle={AI-HIDS Sentinel - Technical Report},
+    pdfauthor={Aditya},
+    pdfsubject={Host Intrusion Detection System},
+}
+
+% ── Code listing style ────────────────────────────────────────
+\lstdefinestyle{python}{
+    language=Python,
+    backgroundcolor=\color{code-bg},
+    basicstyle=\ttfamily\footnotesize\color{code-fg},
+    keywordstyle=\color{codekw}\bfseries,
+    stringstyle=\color{codestr},
+    commentstyle=\color{codecom}\itshape,
+    numbers=left,
+    numberstyle=\tiny\color{codecom},
+    numbersep=8pt,
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    frame=single,
+    rulecolor=\color{primary},
+    tabsize=4,
+    captionpos=b,
+    xleftmargin=1em,
+}
+
+\lstdefinestyle{bash}{
+    language=bash,
+    backgroundcolor=\color{code-bg},
+    basicstyle=\ttfamily\footnotesize\color{code-fg},
+    keywordstyle=\color{codekw}\bfseries,
+    stringstyle=\color{codestr},
+    commentstyle=\color{codecom}\itshape,
+    breaklines=true,
+    showstringspaces=false,
+    frame=single,
+    rulecolor=\color{primary},
+    xleftmargin=1em,
+}
+
+\lstset{style=python}
+
+% ── tcolorbox styles ─────────────────────────────────────────
+\tcbuselibrary{skins, breakable}
+
+\newtcolorbox{infobox}[1][]{
+    enhanced, breakable,
+    colback=primary!10, colframe=primary,
+    fonttitle=\bfseries, title=#1,
+    boxrule=0.8pt, arc=4pt,
+}
+
+\newtcolorbox{warnbox}[1][]{
+    enhanced, breakable,
+    colback=warning!10, colframe=warning,
+    fonttitle=\bfseries, title=#1,
+    boxrule=0.8pt, arc=4pt,
+}
+
+\newtcolorbox{dangerbox}[1][]{
+    enhanced, breakable,
+    colback=danger!10, colframe=danger,
+    fonttitle=\bfseries, title=#1,
+    boxrule=0.8pt, arc=4pt,
+}
+
+\newtcolorbox{successbox}[1][]{
+    enhanced, breakable,
+    colback=success!10, colframe=success,
+    fonttitle=\bfseries, title=#1,
+    boxrule=0.8pt, arc=4pt,
+}
+
+% ── Section title styling ─────────────────────────────────────
+\titleformat{\section}
+  {\Large\bfseries\color{primary}}
+  {\thesection}{1em}{}[\titlerule]
+
+\titleformat{\subsection}
+  {\large\bfseries\color{darkgray}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{darkgray}}
+  {\thesubsubsection}{1em}{}
+
+% ── Header / Footer ──────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{darkgray}AI-HIDS Sentinel — Technical Report}
+\fancyhead[R]{\small\color{darkgray}\rightmark}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Misc ────────────────────────────────────────────────────
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+% ============================================================
+%  DOCUMENT
+% ============================================================
+\begin{document}
+
+% ─────────────────────────────────────────────────────────────
+%  COVER PAGE
+% ─────────────────────────────────────────────────────────────
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    % Title block
+    {\color{primary}\rule{\linewidth}{2pt}}
+    \vspace{0.4cm}
+
+    {\Huge\bfseries\color{darkgray} AI-HIDS Sentinel}\\[0.3cm]
+    {\Large\bfseries\color{primary} Host Intrusion Detection System}\\[0.2cm]
+    {\large\color{darkgray} Comprehensive Technical Implementation Report}
+
+    \vspace{0.4cm}
+    {\color{primary}\rule{\linewidth}{2pt}}
+
+    \vspace{1.5cm}
+
+    % Subtitle badges
+    \begin{tcolorbox}[
+        enhanced, width=0.8\linewidth,
+        colback=primary!8, colframe=primary!40,
+        arc=8pt, boxrule=0.6pt,
+        halign=center
+    ]
+        \textbf{Stack:}~~FastAPI~$\cdot$~React~$\cdot$~MongoDB Atlas~$\cdot$~Python 3.13\\
+        \textbf{AI Engine:}~~Gemini 2.5 Flash~$\cdot$~IsolationForest ML\\
+        \textbf{Security:}~~bcrypt~$\cdot$~HS512 JWT~$\cdot$~SOAR Automation\\
+        \textbf{Platform:}~~Windows~$\cdot$~Linux~$\cdot$~macOS (cross-platform)
+    \end{tcolorbox}
+
+    \vspace{2cm}
+
+    % Author / Date block
+    \begin{tabular}{rl}
+        \textbf{Author}   & Aditya \\[4pt]
+        \textbf{Project}  & TDS\_v2 — Threat Detection System v2 \\[4pt]
+        \textbf{Date}     & September 2026 \\[4pt]
+        \textbf{Version}  & 2.1 (Phase 2 Hardened) \\[4pt]
+        \textbf{Status}   & Active Development \\
+    \end{tabular}
+
+    \vfill
+
+    % Bottom bar
+    \begin{tcolorbox}[
+        enhanced, colback=darkgray, colframe=darkgray,
+        arc=6pt, boxrule=0pt,
+        halign=center, fontupper=\color{white}\small
+    ]
+        This report covers system architecture, all microservices, telemetry pipeline,
+        authentication design, security hardening decisions, and planned future roadmap.
+    \end{tcolorbox}
+
+    \vspace{0.5cm}
+    {\small\color{darkgray} Confidential — Internal Use Only}
+\end{titlepage}
+
+% ─────────────────────────────────────────────────────────────
+%  ONE-PAGE EXECUTIVE SUMMARY
+% ─────────────────────────────────────────────────────────────
+\newpage
+\thispagestyle{empty}
+
+\begin{center}
+    {\LARGE\bfseries\color{primary} Executive Summary}\\[0.3cm]
+    {\color{primary}\rule{0.6\linewidth}{1.5pt}}
+\end{center}
+\vspace{0.5cm}
+
+\begin{onehalfspace}
+\textbf{AI-HIDS Sentinel} is a full-stack, AI-augmented Host Intrusion Detection System (HIDS)
+built for Windows environments and designed for real-world SOC operations.
+It ingests live telemetry directly from the operating system — Windows Security Event Log,
+running processes, file-system changes, network connections, and hardware sensors — and
+applies a dual-layer detection engine: a rules-based threat scorer coupled with
+Google Gemini 2.5 Flash for LLM-powered process classification and an IsolationForest
+machine-learning anomaly detector.
+
+When a threat is detected, the SOAR (Security Orchestration, Automation and Response)
+engine evaluates the alert against configurable playbooks and can autonomously kill a
+malicious process, block a source IP via the OS firewall, or dispatch a webhook
+notification to external systems such as Slack or PagerDuty — subject to a human-approval
+gate for critical actions.
+
+\medskip
+
+\begin{tcolorbox}[enhanced, colback=primary!6, colframe=primary, arc=6pt,
+    title=\textbf{Key Capabilities at a Glance}, fonttitle=\color{white}]
+\begin{multicols}{2}
+\begin{itemize}[leftmargin=*, noitemsep]
+    \item Real-time OS telemetry ingestion
+    \item Windows Event Log (wevtutil / win32evtlog)
+    \item Process anomaly detection (ML + LLM)
+    \item MITRE ATT\&CK technique mapping
+    \item YARA signature scanning engine
+    \item File Integrity Monitoring (FIM)
+    \item SOAR playbook automation
+    \item Deep hardware/firmware scanner
+    \item MongoDB Atlas credential store
+    \item HS512 JWT + bcrypt authentication
+    \item Role-Based Access Control (RBAC)
+    \item Real-time WebSocket dashboard
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\medskip
+
+The system is built on \textbf{FastAPI} (Python 3.13) for the REST/WebSocket backend,
+with a \textbf{React + Vite} single-page application as the frontend dashboard.
+All credentials are stored in \textbf{MongoDB Atlas} with bcrypt hashing (work-factor 12).
+Authentication uses \textbf{HS512 JWT} with server-side revocation via a MongoDB blacklist.
+Rate limiting (5 req/min per IP), security response headers (HSTS, CSP, X-Frame-Options),
+and CORS lockdown are enforced at the middleware layer.
+
+\medskip
+
+A professional SOC review identified critical vulnerabilities in the initial prototype
+(hardcoded credentials, custom JWT, no rate-limiting, no RBAC, SOAR without human oversight).
+All critical and most high-severity findings have been remediated in Phase 2.
+The remaining roadmap focuses on detection quality improvement, enterprise scalability,
+and SOC operational tooling.
+
+\medskip
+
+\textbf{Current overall assessment}: Strong proof-of-concept suitable for internal
+SOC demonstration and small-to-medium deployment with continued hardening.
+\end{onehalfspace}
+
+\newpage
+
+% ─────────────────────────────────────────────────────────────
+%  TABLE OF CONTENTS
+% ─────────────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Project Overview}
+% ============================================================
+
+\subsection{Background and Motivation}
+
+AI-HIDS Sentinel (project code: \texttt{TDS\_v2}) was created to bridge the gap between
+academic HIDS prototypes and the tooling requirements of a real Security Operations Centre.
+Most open-source HIDS tools (e.g., OSSEC, Wazuh) are either too heavyweight for a single
+Windows workstation or require a dedicated SIEM infrastructure. This project targets a
+self-contained, single-binary deployment that still delivers professional-grade detection
+capabilities powered by modern AI.
+
+\subsection{High-Level Architecture}
+
+The system is composed of three tiers:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Backend API Layer} — FastAPI application (\texttt{app/}) providing REST
+          endpoints for all operations and WebSocket channels for real-time push.
+    \item \textbf{Core Engine Layer} — Python modules (\texttt{app/core/}) implementing
+          monitoring, detection, SOAR, FIM, OS event ingestion, AI classification,
+          and reporting.
+    \item \textbf{Frontend Layer} — React SPA (\texttt{frontend/src/App.jsx}) providing
+          the SOC dashboard with glassmorphism UI, real-time metric tiles, and
+          tabbed management pages.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tcolorbox}[enhanced, colback=code-bg!95!black, colframe=primary,
+    arc=6pt, width=\linewidth]
+\color{code-fg}\ttfamily\small
+\begin{verbatim}
+┌─────────────────────────────────────────────────────────┐
+│                   React SPA (Browser)                   │
+│   Dashboard · Alerts · Events · Scanner · Admin Panel   │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTP/REST  +  WebSocket
+┌──────────────────────▼──────────────────────────────────┐
+│               FastAPI (Uvicorn / Python 3.13)            │
+│  routes.py · auth middleware · rate limiter · CORS      │
+└──────┬──────────┬──────────┬────────────┬───────────────┘
+       │          │          │            │
+  ┌────▼───┐  ┌───▼────┐ ┌───▼────┐  ┌───▼─────┐
+  │monitor │  │detector│ │ soar   │  │system   │
+  │.py     │  │.py     │ │.py     │  │_scanner │
+  │HostMon │  │Threat  │ │SOAR    │  │.py      │
+  └────┬───┘  │Detector│ │Engine  │  └─────────┘
+       │      └───┬────┘ └────────┘
+  ┌────▼────────────▼──────────────────────────────────┐
+  │         Data / Storage Layer                        │
+  │  JSON store · SQLite (tds.db) · MongoDB Atlas       │
+  └────────────────────────────────────────────────────┘
+\end{verbatim}
+\end{tcolorbox}
+\caption{System Architecture Diagram}
+\end{figure}
+
+\subsection{Directory Structure}
+
+\begin{lstlisting}[style=bash, caption={Project directory layout}]
+TDS_v2/
+├── app/
+│   ├── api/
+│   │   └── routes.py          # All REST + WebSocket endpoints
+│   ├── core/
+│   │   ├── monitor.py         # HostMonitor — main scan loop
+│   │   ├── detector.py        # ThreatDetector — scoring engine
+│   │   ├── ai_classifier.py   # Gemini + IsolationForest ML
+│   │   ├── soar.py            # SOAR automation engine
+│   │   ├── fim.py             # File Integrity Monitor
+│   │   ├── os_event_log.py    # Windows/Linux event ingestion
+│   │   ├── system_scanner.py  # Deep hardware/firmware scanner
+│   │   ├── yara_scanner.py    # YARA signature engine
+│   │   ├── auth.py            # JWT encode/decode
+│   │   ├── mongo_auth.py      # MongoDB user + blacklist
+│   │   ├── broadcaster.py     # WebSocket broadcast manager
+│   │   ├── reporting.py       # PDF/DOCX report generation
+│   │   ├── response.py        # Process kill + IP block
+│   │   ├── security.py        # Rate limiter + error obfuscation
+│   │   ├── storage.py         # JSON event/alert store
+│   │   └── agent_manager.py   # Multi-host agent registry
+│   ├── models/
+│   │   └── schemas.py         # Pydantic v2 data models
+│   ├── config.py              # Env-var configuration
+│   └── main.py                # FastAPI app factory + startup
+├── frontend/
+│   └── src/App.jsx            # React SPA (single file)
+├── requirements.txt
+├── .env / .env.example
+└── run.py                     # Dev startup script
+\end{lstlisting}
+
+% ============================================================
+\section{Telemetry Services}
+% ============================================================
+
+Telemetry is the foundation of any HIDS. The system collects data from multiple
+sources concurrently, normalises it into a unified \texttt{EventIn} schema,
+and streams it to the detection engine.
+
+\subsection{Host Monitor (\texttt{monitor.py})}
+
+\texttt{HostMonitor} is the central orchestration class. It runs a background thread
+that calls \texttt{collect\_snapshot()} every \texttt{interval\_seconds} (default: 15 s).
+
+\textbf{Collected metrics per cycle:}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Metric} & \textbf{Source / Method} \\
+\midrule
+CPU usage (\%) & \texttt{psutil.cpu\_percent(interval=0.2)} \\
+Memory usage (\%) & \texttt{psutil.virtual\_memory().percent} \\
+Disk usage (\%) & \texttt{psutil.disk\_usage("/")} \\
+Active network connections & \texttt{psutil.net\_connections(kind="inet")} \\
+Logged-in users & \texttt{psutil.users()} $\cup$ \texttt{getpass.getuser()} \\
+Running processes & \texttt{psutil.process\_iter()} with CPU/RAM/cmdline \\
+OS security events & \texttt{CrossOSEventIngestor.collect\_os\_events()} \\
+FIM events & \texttt{CrossPlatformFIM} watchdog buffer \\
+\bottomrule
+\end{tabularx}
+\caption{Telemetry metrics collected by HostMonitor}
+\end{table}
+
+Each collected snapshot is converted to one or more \texttt{EventIn} objects and
+pushed through the \texttt{ThreatDetector}.
+
+\subsection{OS Event Log Ingestion (\texttt{os\_event\_log.py})}
+
+\texttt{CrossOSEventIngestor} reads native OS security events, abstracting the
+platform difference:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Platform} & \textbf{Mechanism} \\
+\midrule
+Windows (primary) & \texttt{win32evtlog} (native) → fallback to \texttt{wevtutil qe Security /f:RenderedXml} \\
+Linux & Reads \texttt{/var/log/auth.log}, \texttt{/var/log/syslog}, \texttt{/var/log/secure} \\
+macOS & Reads \texttt{/var/log/system.log} \\
+\bottomrule
+\end{tabularx}
+\caption{OS event log ingestion by platform}
+\end{table}
+
+\textbf{Windows Security Event IDs monitored:}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Event ID} & \textbf{Type} & \textbf{Mapped To} \\
+\midrule
+4625 & Failed logon & \texttt{login\_failure} \\
+4624 & Successful logon & \texttt{login\_success} \\
+4672 & Privileged logon (admin) & \texttt{privilege\_escalation} \\
+4688 & New process created & \texttt{process\_start} \\
+\bottomrule
+\end{tabular}
+\caption{Windows Security Event IDs and their HIDS mapping}
+\end{table}
+
+\subsection{File Integrity Monitor (\texttt{fim.py})}
+
+\texttt{CrossPlatformFIM} uses the \texttt{watchdog} library to monitor the filesystem
+for created, modified, and deleted files. Events are buffered in memory and flushed
+to the detection engine each scan cycle.
+
+\begin{lstlisting}[style=python, caption={FIM watchdog event handler}]
+class FIMEventHandler(FileSystemEventHandler):
+    def _record(self, action: str, path: str) -> None:
+        # Ignore noisy paths: .git, __pycache__, node_modules, dist
+        if any(ign in path for ign in [".git", "__pycache__", "node_modules"]):
+            return
+        with self.lock:
+            self.buffer.append({
+                "action": action,
+                "path": path,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+\end{lstlisting}
+
+\begin{dangerbox}[Known Issue — FIM Path Scope]
+The current FIM watches the entire project root directory, which generates
+noise from database writes and log rotations. The roadmap targets OS-critical
+paths only: \texttt{C:\textbackslash{}Windows\textbackslash{}System32},
+\texttt{C:\textbackslash{}Program Files}, and \texttt{/etc} on Linux.
+\end{dangerbox}
+
+\subsection{WebSocket Real-Time Push (\texttt{broadcaster.py})}
+
+New events and alerts are pushed immediately to all connected dashboard clients
+via a WebSocket channel at \texttt{/ws/telemetry}. The \texttt{Broadcaster} class
+maintains a set of active connections and broadcasts JSON messages typed as
+\texttt{\{type: "event"|\allowbreak "alert", data: \{...\}\}}.
+
+The frontend listens on this channel and updates the metric tile state
+\emph{immediately} when a push arrives — without waiting for the 2-second polling
+cycle. This gives genuinely real-time alert and event counter updates.
+
+\subsection{Deep System Scanner (\texttt{system\_scanner.py})}
+
+A separate on-demand scanner (triggered by \texttt{POST /api/system/deep-scan})
+performs a full hardware and firmware interrogation of the local PC using
+\texttt{wmic}, \texttt{powershell}, \texttt{winreg}, and \texttt{psutil}.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Subsystem} & \textbf{Data Collected} \\
+\midrule
+BIOS / Firmware & Manufacturer, name, version, release date, serial \\
+Firmware Type & UEFI vs Legacy BIOS (via registry \texttt{PEFirmwareType}) \\
+Secure Boot & Enabled/disabled via \texttt{Confirm-SecureBootUEFI} \\
+TPM & Present, ready, spec version via \texttt{Get-Tpm} \\
+Motherboard & Manufacturer, product, version via \texttt{Win32\_BaseBoard} \\
+CPU & Name, cores, max MHz via \texttt{Win32\_Processor} \\
+Memory & Total/used GB, per-stick speed+manufacturer \\
+Disks & All partitions: device, mount, fstype, usage \\
+GPU & Name, VRAM, driver version via \texttt{Win32\_VideoController} \\
+Windows Defender & Real-time protection, signature version (\texttt{Get-MpComputerStatus}) \\
+Firewall & Domain/Private/Public profiles (\texttt{Get-NetFirewallProfile}) \\
+Windows Updates & Pending update count via COM \texttt{Microsoft.Update.Session} \\
+Services & All running + auto-start services via \texttt{psutil.win\_service\_iter()} \\
+Startup Items & HKLM/HKCU \texttt{Run} registry keys \\
+Scheduled Tasks & Active tasks via \texttt{Get-ScheduledTask} \\
+Network Adapters & IP, MAC, up/down, speed \\
+Listening Ports & Port, PID, mapped process name \\
+USB / PnP Devices & Connected devices via \texttt{Win32\_USBControllerDevice} \\
+Processes (IOC) & All processes scanned against known-bad name list \\
+\bottomrule
+\end{tabularx}
+\caption{Deep system scanner data collection}
+\end{table}
+
+% ============================================================
+\section{Detection Engine}
+% ============================================================
+
+\subsection{Threat Scoring (\texttt{detector.py})}
+
+\texttt{ThreatDetector} applies a weighted scoring model to each incoming event.
+The score is the sum of:
+
+\[
+\text{ThreatScore} = W_{\text{type}} + \sum_{p \in \text{processes}} W_p
+                   + \sum_{f \in \text{features}} \Delta_f + \text{AnomalyBonus}
+\]
+
+where $W_{\text{type}}$ is the event-type weight (Table~\ref{tab:event-weights}),
+$W_p$ is the process suspicion score, $\Delta_f$ is the deviation from baseline
+per numeric feature, and AnomalyBonus is the IsolationForest contribution.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Event Type} & \textbf{Weight} & \textbf{MITRE Technique} \\
+\midrule
+\texttt{data\_exfiltration}    & 38 & T1041 — Exfiltration Over C2 \\
+\texttt{lateral\_movement}     & 36 & T1021 — Remote Services \\
+\texttt{privilege\_escalation} & 35 & T1068 — Privilege Escalation \\
+\texttt{file\_integrity\_change} & 22 & T1486 — Data Encrypted for Impact \\
+\texttt{login\_failure}        & 18 & T1110 — Brute Force \\
+\texttt{network\_connection}   & 12 & T1021 — Remote Services \\
+\texttt{process\_start}        & 10 & T1059 — Command Scripting Interpreter \\
+\bottomrule
+\end{tabular}
+\caption{Event type weights and MITRE mappings}
+\label{tab:event-weights}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Process Name} & \textbf{Suspicion Score} \\
+\midrule
+\texttt{mimikatz.exe}     & +35 \\
+\texttt{rclone.exe}       & +30 \\
+\texttt{psexec.exe}       & +28 \\
+\texttt{net.exe}          & +10 \\
+\texttt{wmic.exe}         & +14 \\
+\texttt{powershell.exe}   & +12 \\
+\texttt{cmd.exe}          & +8 \\
+\bottomrule
+\end{tabular}
+\caption{Suspicious process name weights}
+\end{table}
+
+\textbf{Alert thresholds:}
+
+\begin{itemize}[noitemsep]
+    \item Score $\geq$ 80 $\rightarrow$ \textbf{Critical}
+    \item Score $\geq$ 60 $\rightarrow$ \textbf{High}
+    \item Score $\geq$ 40 $\rightarrow$ \textbf{Medium}
+    \item Score $<$ 40 $\rightarrow$ \textbf{Low} (event stored, no alert)
+\end{itemize}
+
+\subsection{AI Classification (\texttt{ai\_classifier.py})}
+
+The AI layer operates in two modes selected at startup:
+
+\subsubsection{Mode 1 — Gemini 2.5 Flash (Cloud AI)}
+
+When \texttt{GEMINI\_API\_KEY} is set, the system sends process metadata to
+Google's Gemini 2.5 Flash model with a structured security analysis prompt.
+The model returns a JSON payload with:
+
+\begin{itemize}[noitemsep]
+    \item \texttt{is\_suspicious} (bool)
+    \item \texttt{score} (0.0 – 1.0 confidence)
+    \item \texttt{reasons} (list of strings)
+    \item \texttt{mitre\_tags} (list of MITRE technique IDs)
+    \item \texttt{classification} (clean / suspicious / malicious)
+\end{itemize}
+
+\subsubsection{Mode 2 — Local IsolationForest + Rule Engine}
+
+When no API key is present, a local \texttt{scikit-learn} \texttt{IsolationForest}
+model (trained on synthetic benign process baselines) is used for anomaly scoring,
+combined with a deterministic rule engine that pattern-matches:
+
+\begin{itemize}[noitemsep]
+    \item High-risk process names (\texttt{mimikatz.exe}, \texttt{psexec.exe}, \texttt{mshta.exe}, etc.)
+    \item Suspicious CLI arguments: \texttt{-EncodedCommand}, \texttt{-w hidden},
+          \texttt{DownloadString}, \texttt{Invoke-WebRequest}, \texttt{FromBase64String}
+    \item Shell abuse patterns: PowerShell running encoded commands, \texttt{certutil} download
+\end{itemize}
+
+\subsection{YARA Signature Scanner (\texttt{yara\_scanner.py})}
+
+The \texttt{YARASignatureScanner} provides a lightweight regex-based YARA-like
+scanner with four built-in rule sets:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Rule} & \textbf{MITRE} & \textbf{Patterns} \\
+\midrule
+Mimikatz Credential Dumping & T1003.001 & \texttt{sekurlsa::logonpasswords}, \texttt{lsadump::sam}, \texttt{wdigest.dll} \\
+Ransomware Mass Encryption & T1486 & \texttt{HOW\_TO\_DECRYPT}, \texttt{.locked}, \texttt{vssadmin delete shadows} \\
+CobaltStrike Beacon & T1071.001 & \texttt{ReflectiveLoader}, \texttt{beacon.dll}, \texttt{syswow64\textbackslash{}rundll32.exe} \\
+Webshell Execution & T1505.003 & \texttt{eval(base64\_decode}, \texttt{system(\$\_POST}, \texttt{cscript.exe *.vbs} \\
+\bottomrule
+\end{tabularx}
+\caption{Built-in YARA rule sets}
+\end{table}
+
+The scanner can operate on:
+\begin{enumerate}[noitemsep]
+    \item Arbitrary text strings (via POST \texttt{/api/scan/yara} with \texttt{target})
+    \item File content (first 512 KB read) by path
+    \item Process metadata (name + command line)
+\end{enumerate}
+
+% ============================================================
+\section{SOAR Automation Engine}
+% ============================================================
+
+\subsection{Architecture Overview}
+
+The \texttt{SOAREngine} class evaluates every generated alert against configured
+playbooks and executes responses automatically.
+
+\textbf{Trigger conditions:}
+\begin{itemize}[noitemsep]
+    \item Alert score $\geq$ \texttt{SOAR\_ALERT\_THRESHOLD} (default: 85.0)
+    \item \emph{or} severity equals \texttt{"critical"}
+\end{itemize}
+
+\subsection{Playbooks}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Playbook} & \textbf{Default} & \textbf{Action} \\
+\midrule
+\texttt{auto\_kill\_process} & Enabled & Extract PID from alert metadata, call \texttt{response.kill\_process(pid)} \\
+\texttt{auto\_block\_ip} & Enabled & Extract source IP, add Windows Firewall inbound block rule via \texttt{netsh} \\
+\texttt{webhook\_notify} & Enabled & POST JSON alert payload to \texttt{SOAR\_WEBHOOK\_URL} (Slack, PagerDuty, etc.) \\
+\bottomrule
+\end{tabularx}
+\caption{SOAR playbooks}
+\end{table}
+
+\subsection{Human Approval Gate}
+
+When \texttt{SOAR\_REQUIRE\_APPROVAL=true} (default), critical actions for
+\texttt{kill\_process} and \texttt{block\_ip} are queued in a MongoDB pending-approval
+collection rather than executed immediately. An admin must approve or reject each
+action via the frontend Admin Panel or the REST API
+(\texttt{POST /api/soar/approve}/\texttt{/api/soar/reject}).
+
+\begin{successbox}[Phase 2 Hardening — SOAR Human Gate]
+The original prototype executed SOAR actions with zero human oversight,
+creating a significant false-positive operational risk. The approval gate is
+now the default configuration, preventing automated termination of legitimate
+business processes.
+\end{successbox}
+
+\subsection{Threat Containment (\texttt{response.py})}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Action} & \textbf{Implementation} \\
+\midrule
+Kill Process & \texttt{psutil.Process(pid).terminate()} then \texttt{.kill()} if still running \\
+Block IP (Windows) & \texttt{netsh advfirewall firewall add rule} inbound block \\
+Block IP (Linux) & \texttt{iptables -A INPUT -s \{ip\} -j DROP} \\
+Unblock IP & Reverse of the above (delete rule) \\
+\bottomrule
+\end{tabularx}
+\caption{Threat containment actions and their OS-level implementation}
+\end{table}
+
+% ============================================================
+\section{Authentication and Security}
+% ============================================================
+
+\subsection{Authentication Flow}
+
+\begin{enumerate}[leftmargin=*]
+    \item Client POSTs credentials to \texttt{/api/auth/login}.
+    \item Slowapi rate limiter enforces 5 requests/minute per IP.
+    \item \texttt{mongo\_auth.verify\_user\_credentials()} queries MongoDB Atlas,
+          runs \texttt{bcrypt.checkpw()} with work-factor 12.
+    \item If valid, a JWT is created with \texttt{python-jose} using \textbf{HS512}
+          algorithm, including: \texttt{sub} (username), \texttt{role},
+          \texttt{exp} (8 hours), \texttt{jti} (unique token ID for revocation).
+    \item All subsequent requests must include \texttt{Authorization: Bearer <token>}.
+    \item On logout, the \texttt{jti} is written to a MongoDB blacklist collection,
+          invalidating the token server-side immediately.
+\end{enumerate}
+
+\subsection{Password Storage}
+
+\begin{lstlisting}[style=python, caption={bcrypt password hashing (mongo\_auth.py)}]
+import bcrypt
+
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt(rounds=12)      # work factor 12
+    return bcrypt.hashpw(password.encode(), salt).decode()
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
+\end{lstlisting}
+
+\subsection{JWT Configuration}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Algorithm & HS512 (algorithm whitelist enforced) \\
+Expiry & 8 hours (configurable via \texttt{JWT\_EXPIRE\_MINUTES}) \\
+Revocation & MongoDB blacklist keyed on \texttt{jti} claim \\
+Secret Length & Minimum 32 characters (startup validation) \\
+Source & Environment variable only — no hardcoded default \\
+\bottomrule
+\end{tabular}
+\caption{JWT configuration parameters}
+\end{table}
+
+\subsection{Role-Based Access Control (RBAC)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Role} & \textbf{View Dashboard} & \textbf{SOAR Actions} & \textbf{Admin Panel} \\
+\midrule
+\texttt{viewer}  & \checkmark & $\times$ & $\times$ \\
+\texttt{analyst} & \checkmark & \checkmark & $\times$ \\
+\texttt{admin}   & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\caption{RBAC permission matrix}
+\end{table}
+
+The \texttt{require\_role(roles)} FastAPI dependency enforces role checks at
+the endpoint level. The React sidebar dynamically shows/hides navigation items
+based on the decoded JWT role claim.
+
+\subsection{Security Headers}
+
+A Starlette middleware injects the following headers on every response:
+
+\begin{lstlisting}[style=python, caption={Security headers middleware (main.py)}]
+headers = {
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Content-Security-Policy":   "default-src 'self'; ...",
+    "X-Frame-Options":           "DENY",
+    "X-Content-Type-Options":    "nosniff",
+    "Referrer-Policy":           "strict-origin-when-cross-origin",
+}
+\end{lstlisting}
+
+\subsection{Rate Limiting}
+
+\texttt{slowapi} (a SlowAPI wrapper for FastAPI) enforces:
+\begin{itemize}[noitemsep]
+    \item Login endpoint: \textbf{5 requests per minute per IP}
+    \item Standard endpoints: unrestricted (authenticated only)
+\end{itemize}
+
+All authentication failures return an identical error message
+(\emph{"Authentication failed. Check credentials and try again."})
+regardless of whether the failure was username-not-found, wrong-password,
+or account-locked, preventing user enumeration.
+
+% ============================================================
+\section{Python Modules Reference}
+% ============================================================
+
+\subsection{Core Dependencies (\texttt{requirements.txt})}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Package} & \textbf{Version} & \textbf{Purpose} \\
+\midrule
+\texttt{fastapi} & 0.115.12 & Async REST API framework with OpenAPI generation \\
+\texttt{uvicorn} & 0.34.1 & ASGI server for FastAPI; StatReload for development \\
+\texttt{jinja2} & 3.1.6 & HTML template rendering for static frontend fallback \\
+\texttt{psutil} & 7.1.0 & Cross-platform process/network/disk/CPU metrics \\
+\texttt{python-docx} & 1.1.2 & DOCX incident report generation \\
+\texttt{reportlab} & 4.2.5 & PDF incident report generation \\
+\texttt{pywin32} & 308 & Windows Event Log access via \texttt{win32evtlog} (Win32 only) \\
+\texttt{watchdog} & 6.0.0 & Cross-platform filesystem event monitoring (FIM) \\
+\texttt{scikit-learn} & 1.6.1 & IsolationForest anomaly detection model \\
+\texttt{numpy} & 2.2.3 & Numerical arrays for ML feature vectors \\
+\midrule
+\multicolumn{3}{l}{\textit{Security Hardening (Phase 2)}} \\
+\midrule
+\texttt{motor} & 3.6.0 & Async MongoDB driver (includes \texttt{pymongo}); Atlas connection \\
+\texttt{bcrypt} & 4.2.1 & Password hashing — work factor 12, OWASP recommended \\
+\texttt{python-jose[cryptography]} & 3.3.0 & RFC-compliant JWT with algorithm whitelist \\
+\texttt{slowapi} & 0.1.9 & Rate limiting middleware for FastAPI \\
+\texttt{python-dotenv} & 1.0.1 & \texttt{.env} file loading with system env priority \\
+\bottomrule
+\end{tabularx}
+\caption{Python dependencies and their roles}
+\end{table}
+
+\subsection{System-Level Libraries (Deep Scanner)}
+
+The \texttt{system\_scanner.py} module uses only Python standard library and
+\texttt{psutil} — no extra dependencies:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Module} & \textbf{Usage} \\
+\midrule
+\texttt{subprocess} & Calls \texttt{wmic.exe} and \texttt{powershell.exe} for firmware/hardware data \\
+\texttt{winreg} & Reads registry Run keys for startup item enumeration \\
+\texttt{psutil} & Process scanning, disk/network adapters, services \\
+\texttt{socket} & Hostname resolution \\
+\texttt{re} & Parsing wmic/powershell output \\
+\texttt{concurrent.futures} & Runs 15–30 second scan in a thread pool, non-blocking \\
+\bottomrule
+\end{tabularx}
+\caption{Standard library modules used by the deep scanner}
+\end{table}
+
+% ============================================================
+\section{REST API Endpoints}
+% ============================================================
+
+\subsection{Authentication Endpoints}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description} \\
+\midrule
+\texttt{POST} & \texttt{/api/auth/login} & Authenticate user, return JWT. Rate-limited 5/min/IP \\
+\texttt{POST} & \texttt{/api/auth/logout} & Blacklist \texttt{jti} in MongoDB, server-side invalidation \\
+\texttt{GET}  & \texttt{/api/auth/me}    & Return current user's claims from JWT \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Monitoring \& Detection Endpoints}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description} \\
+\midrule
+\texttt{GET}  & \texttt{/api/metrics} & Dashboard metrics: totals, scores, system\_boot\_time \\
+\texttt{GET}  & \texttt{/api/alerts}  & Paginated alert list (\texttt{limit} param) \\
+\texttt{GET}  & \texttt{/api/events}  & Paginated event list \\
+\texttt{GET}  & \texttt{/api/baseline} & Current ML baseline profile \\
+\texttt{GET}  & \texttt{/api/monitor/status} & Monitor enabled, interval, scans completed \\
+\texttt{POST} & \texttt{/api/monitor/start}  & Enable background monitoring loop \\
+\texttt{POST} & \texttt{/api/monitor/stop}   & Disable background monitoring loop \\
+\texttt{POST} & \texttt{/api/monitor/scan}   & Trigger an immediate single scan cycle \\
+\texttt{POST} & \texttt{/api/events}         & Ingest a manually crafted event \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Scanner Endpoints}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description} \\
+\midrule
+\texttt{POST} & \texttt{/api/scan/yara}         & YARA scan a text/file/process \\
+\texttt{POST} & \texttt{/api/system/deep-scan}  & Full real hardware + firmware scan (15–30 s) \\
+\texttt{GET}  & \texttt{/api/system}            & Quick system snapshot (psutil only) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{SOAR Endpoints}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description} \\
+\midrule
+\texttt{GET}  & \texttt{/api/soar/status}           & SOAR enabled, threshold, playbook states \\
+\texttt{GET}  & \texttt{/api/soar/history}           & Last $n$ SOAR action records \\
+\texttt{POST} & \texttt{/api/soar/approve}           & Approve a queued critical SOAR action \\
+\texttt{POST} & \texttt{/api/soar/reject}            & Reject a queued SOAR action \\
+\texttt{GET}  & \texttt{/api/soar/pending}           & List pending approval actions \\
+\texttt{POST} & \texttt{/api/response/kill-process}  & Manually terminate a process by PID \\
+\texttt{POST} & \texttt{/api/response/block-ip}      & Add firewall block rule for an IP \\
+\texttt{POST} & \texttt{/api/response/unblock-ip}    & Remove firewall block rule \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Admin Endpoints}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description} \\
+\midrule
+\texttt{GET}  & \texttt{/api/admin/dashboard} & Security posture dashboard data (admin only) \\
+\texttt{GET}  & \texttt{/api/admin/users}     & List all user accounts \\
+\texttt{POST} & \texttt{/api/admin/users}     & Create a new user account \\
+\texttt{POST} & \texttt{/api/admin/reset}     & Wipe all events/alerts, reset ML baseline \\
+\texttt{POST} & \texttt{/api/app/shutdown}    & Graceful server restart (Uvicorn StatReload) \\
+\texttt{GET}  & \texttt{/api/report}          & Generate in-memory HTML security report \\
+\texttt{GET}  & \texttt{/api/report/export}   & Export PDF or DOCX report \\
+\texttt{WS}   & \texttt{/ws/telemetry}        & WebSocket for real-time event/alert push \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ============================================================
+\section{Frontend Dashboard}
+% ============================================================
+
+\subsection{Technology Stack}
+
+The frontend is a single-file React application (\texttt{App.jsx}) built with Vite 5.
+It uses vanilla CSS with CSS custom properties (design tokens) — no UI framework dependency.
+The glassmorphism dark theme uses CSS \texttt{backdrop-filter}, HSL colour palette,
+and ambient orb animations.
+
+\subsection{Pages and Features}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Page} & \textbf{Features} \\
+\midrule
+\textbf{Overview} & Six live metric tiles (total events, alerts, critical count,
+    events/hr, PC uptime [real-time 1s tick], anomaly score). Pie chart, top processes,
+    monitor controls. \\
+\textbf{Alerts} & Sortable/filterable alert table. Severity badges. SOAR action buttons
+    (kill, block). Detail drill-down with MITRE context. \\
+\textbf{Event Stream} & Chronological event feed. Type filter. JSON metadata view. \\
+\textbf{Firmware Scanner} & ``Deep System Security Scanner'' — calls \texttt{/api/system/deep-scan},
+    shows real BIOS/firmware/hardware/security posture in 8 tabbed sections. \\
+\textbf{YARA Scanner} & Text/file YARA scan UI with real-time results. \\
+\textbf{Monitor} & Start/stop controls, live snapshot metrics, FIM status. \\
+\textbf{Baseline} & ML baseline profile viewer, retrain trigger. \\
+\textbf{Report} & PDF/DOCX export, incident summary. \\
+\textbf{Agents} & Multi-host agent fleet status (heartbeat, event counts). \\
+\textbf{Admin Panel} & Security score, hardening checklist, user IAM table,
+    data reset, app restart. Admin role only. \\
+\bottomrule
+\end{tabularx}
+\caption{Frontend pages and their capabilities}
+\end{table}
+
+\subsection{Real-Time Data Architecture}
+
+The dashboard uses a hybrid push/poll model:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{WebSocket push} — events and alerts appear instantly via \texttt{/ws/telemetry}.
+          Metric counters are incremented in the React state immediately on push,
+          without waiting for the next poll.
+    \item \textbf{2-second polling} — all other endpoints (\texttt{/api/metrics},
+          \texttt{/api/alerts}, \texttt{/api/events}, etc.) polled every 2 seconds.
+    \item \textbf{Local 1-second ticker} — PC Uptime tile ticks every second using
+          \texttt{psutil.boot\_time()} sent once from the server. The client computes
+          \texttt{Date.now()/1000 - boot\_time} locally — zero server load.
+\end{itemize}
+
+% ============================================================
+\section{Data Persistence}
+% ============================================================
+
+\subsection{Storage Layers}
+
+The system uses three complementary storage systems:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Store} & \textbf{Technology} & \textbf{Data} \\
+\midrule
+Runtime events/alerts & JSON file (\texttt{data/runtime\_store.json}) & In-memory with file persistence. Fast read/write for streaming data. \\
+ML + reporting & SQLite (\texttt{data/tds.db}) & Baseline samples, reporting aggregates. Lightweight, zero-config. \\
+Credentials + auth & MongoDB Atlas & User accounts, bcrypt hashes, JWT blacklist, SOAR approval queue. TLS-encrypted. \\
+\bottomrule
+\end{tabularx}
+\caption{Storage layer responsibilities}
+\end{table}
+
+\begin{warnbox}[SQLite Production Limitation]
+SQLite is appropriate for single-host demonstration and development.
+The roadmap targets migration to PostgreSQL with TimescaleDB for
+production deployments handling high-volume telemetry.
+\end{warnbox}
+
+% ============================================================
+\section{Security Hardening — Decision Record}
+% ============================================================
+
+This section summarises the 12 architectural decisions made during Phase 2 security hardening,
+derived from a professional SOC review that identified critical vulnerabilities in the initial prototype.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Decision} & \textbf{Change Made} \\
+\midrule
+MongoDB Atlas & Migrated credential storage from config defaults to encrypted Atlas cluster \\
+bcrypt hashing & Work factor 12; replaces plain-text comparison \\
+python-jose JWT & HS512 algorithm whitelist; prevents algorithm-confusion attacks \\
+Rate limiting & slowapi: 5 login requests/min/IP; prevents brute-force \\
+Error obfuscation & Single generic auth error message; synthetic timing delay \\
+SOAR human gate & Critical SOAR actions queued for analyst approval \\
+Security headers & HSTS, CSP, X-Frame-Options, X-Content-Type-Options injected globally \\
+Admin dashboard & Real-time security posture panel; 12-point hardening checklist \\
+Data reset endpoint & Admin-only wipe of events/alerts/ML baseline \\
+App restart endpoint & Graceful Uvicorn reload without terminal access \\
+Credential hint removed & Login screen no longer discloses default credentials \\
+Server-side logout & JWT \texttt{jti} blacklisted in MongoDB on logout; tokens immediately invalid \\
+\bottomrule
+\end{tabularx}
+\caption{Phase 2 security hardening decisions}
+\end{table}
+
+% ============================================================
+\section{SOC Review Findings and Remediation Status}
+% ============================================================
+
+\subsection{Critical Findings}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lXl}
+\toprule
+\textbf{ID} & \textbf{Finding} & \textbf{Status} \\
+\midrule
+C-1 & Hardcoded credentials (\texttt{admin/admin123} fallback) & \textcolor{success}{\textbf{Fixed}} \\
+C-2 & JWT secret hardcoded and weak & \textcolor{success}{\textbf{Fixed}} \\
+C-3 & Custom JWT vulnerable to \texttt{alg:none} forgery & \textcolor{success}{\textbf{Fixed}} \\
+C-4 & SOAR auto-kill/block without human approval & \textcolor{success}{\textbf{Fixed}} \\
+C-5 & FastAPI \texttt{/docs}/\texttt{/redoc} publicly accessible & \textcolor{success}{\textbf{Fixed}} \\
+\bottomrule
+\end{tabularx}
+\caption{Critical findings and remediation status}
+\end{table}
+
+\subsection{High-Severity Findings}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{lXl}
+\toprule
+\textbf{ID} & \textbf{Finding} & \textbf{Status} \\
+\midrule
+H-1 & No rate limiting on login & \textcolor{success}{\textbf{Fixed}} \\
+H-2 & SOAR history in-memory only & \textcolor{warning}{\textbf{Partial}} \\
+H-3 & Missing \texttt{events\_per\_hour}, \texttt{monitor\_uptime} metrics & \textcolor{success}{\textbf{Fixed}} \\
+H-4 & WebSocket token in query string & \textcolor{warning}{\textbf{Open}} \\
+H-5 & FIM watching entire project directory & \textcolor{warning}{\textbf{Open}} \\
+H-6 & IP blocking IPv4 only & \textcolor{warning}{\textbf{Open}} \\
+\bottomrule
+\end{tabularx}
+\caption{High-severity findings and remediation status}
+\end{table}
+
+\subsection{Summary Score Card}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llp{6cm}}
+\toprule
+\textbf{Domain} & \textbf{Score} & \textbf{Key Gap} \\
+\midrule
+Authentication \& Auth & 8/10 & WS token in query string \\
+Detection Quality & 5/10 & Sequence detection, no dedup \\
+SOAR / Response & 7/10 & Approval gate added; history not persisted \\
+Data Persistence & 6/10 & SQLite: single-host only \\
+FIM & 3/10 & Watches wrong paths \\
+Frontend Security & 6/10 & No CSP \\
+Scalability & 3/10 & Single-host, in-memory state \\
+SOC Operations & 5/10 & RBAC added; no audit log \\
+Code Quality & 7/10 & Clean arch, circular import \\
+\textbf{Overall} & \textbf{6/10} & Strong PoC; Phase 3 targets SOC ops \\
+\bottomrule
+\end{tabular}
+\caption{Security domain scores after Phase 2 hardening}
+\end{table}
+
+% ============================================================
+\section{Future Roadmap}
+% ============================================================
+
+\subsection{Phase 3 — SOC Operations (Planned)}
+
+\begin{itemize}[leftmargin=*, noitemsep]
+    \item Alert case management — assign, acknowledge, close, add analyst notes
+    \item Incident timeline — chain correlated alerts into a single incident object
+    \item Structured audit log — every auth event and SOAR action persisted immutably
+    \item SOC shift handover report — auto-generated PDF/email at shift boundary
+    \item FIM path hardening — watch \texttt{System32}, \texttt{Program Files} only
+    \item Sliding-window brute-force detection (Redis-backed per-user counters)
+    \item Alert deduplication — fingerprint (host + type + process) + 5-min suppression
+\end{itemize}
+
+\subsection{Phase 4 — Enterprise Scale (Planned)}
+
+\begin{itemize}[leftmargin=*, noitemsep]
+    \item Migrate from SQLite to PostgreSQL + TimescaleDB
+    \item SIEM integration: syslog/CEF/LEEF export to Splunk, QRadar, Elastic SIEM
+    \item TLS termination behind Nginx/Caddy reverse proxy
+    \item Agent-based deployment — lightweight Python agents on remote Windows hosts
+    \item Threat intelligence feed (MISP, OTX, VirusTotal hash lookups)
+    \item Network-level detection via Suricata/Zeek integration (NDR)
+    \item IPv6 support in containment engine
+    \item MITRE ATT\&CK sub-technique resolution using official STIX dataset
+\end{itemize}
+
+\subsection{Phase 5 — AI/ML Maturity (Planned)}
+
+\begin{itemize}[leftmargin=*, noitemsep]
+    \item Per-user behavioural baselining (UEBA) for insider threat detection
+    \item Graph-based lateral movement detection using process trees
+    \item LLM-powered alert narrative generation for Tier-1 analysts
+    \item RAG + ATT\&CK knowledge base for automated threat hunting
+    \item IsolationForest retrained on 7-day real baseline (weekly retraining)
+    \item Fine-tuned open-source LLM for on-premise process classification
+\end{itemize}
+
+% ============================================================
+\section{Configuration Reference}
+% ============================================================
+
+\begin{lstlisting}[style=bash, caption={Required environment variables (.env)}]
+# ── JWT (REQUIRED — no defaults) ─────────────────────────────
+JWT_SECRET_KEY=<64+ character random hex string>
+JWT_EXPIRE_MINUTES=480          # 8 hours (optional)
+
+# ── MongoDB Atlas (REQUIRED) ─────────────────────────────────
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/
+MONGODB_DB_NAME=hids_sentinel    # optional
+
+# ── First-run admin seed (optional after first boot) ────────
+ADMIN_USERNAME=youradminname
+ADMIN_PASSWORD=YourStr0ngP@ssw0rd
+
+# ── AI Engine (optional — falls back to local ML) ───────────
+GEMINI_API_KEY=<your-google-gemini-api-key>
+
+# ── SOAR configuration ──────────────────────────────────────
+SOAR_ENABLED=true
+SOAR_ALERT_THRESHOLD=85.0
+SOAR_REQUIRE_APPROVAL=true       # Human gate for critical actions
+SOAR_WEBHOOK_URL=                # Optional: Slack/PagerDuty webhook
+\end{lstlisting}
+
+% ============================================================
+\section{Installation and Running}
+% ============================================================
+
+\begin{lstlisting}[style=bash, caption={Backend setup and startup}]
+# 1. Clone and install dependencies
+git clone <repo-url>
+cd TDS_v2
+pip install -r requirements.txt
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your MongoDB URI and JWT secret
+
+# 3. Start backend (development — auto-reload)
+uvicorn app.main:app --reload --port 8000
+
+# 4. Build and start frontend
+cd frontend
+npm install
+npm run build          # Production build
+# OR: npm run dev      # Development with HMR on port 5173
+\end{lstlisting}
+
+The FastAPI backend serves the compiled React dist at \texttt{/}
+(via Starlette \texttt{StaticFiles} mount), so in production a
+single \texttt{uvicorn} process serves both the API and the SPA.
+
+% ============================================================
+\section{Conclusion}
+% ============================================================
+
+AI-HIDS Sentinel demonstrates a production-viable architecture for an
+AI-augmented Host Intrusion Detection System. The Phase 2 security hardening
+addressed all critical vulnerabilities identified in the professional SOC review:
+hardcoded credentials, weak JWT, missing rate limiting, and SOAR without human oversight.
+
+The system now collects genuine, real-time telemetry from the host operating system
+using multiple complementary data sources (Windows Event Log, psutil process scanner,
+watchdog FIM, and the deep hardware/firmware scanner). Detection is layered — rules-based
+scoring, IsolationForest anomaly detection, YARA signatures, and Gemini LLM classification —
+giving it defence-in-depth against both known-bad patterns and novel threats.
+
+The planned Phase 3–5 roadmap targets the remaining gaps: alert deduplication, sliding-window
+brute force detection, real OS-critical FIM paths, case management, audit logs, PostgreSQL
+migration, and enterprise SIEM integration. At that point the system would be suitable for
+genuine small-to-medium SOC deployment.
+
+\vspace{1cm}
+
+\begin{center}
+    {\color{primary}\rule{0.8\linewidth}{1pt}}\\[0.4cm]
+    {\small\color{darkgray}
+    AI-HIDS Sentinel — Technical Report $\cdot$ Version 2.1 $\cdot$ September 2026\\
+    Generated from live codebase at \texttt{d:\textbackslash{}Aditya\textbackslash{}TDS\_v2}}
+\end{center}
+
+\end{document}

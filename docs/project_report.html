@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HIDS Sentinel — Detailed Project Report</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root{
+  --blue:#1d4ed8;--blue-lt:#dbeafe;--blue-md:#3b82f6;
+  --navy:#0f172a;--dark:#1e293b;--slate:#334155;
+  --gray:#64748b;--border:#e2e8f0;--bg:#f8fafc;
+  --red:#dc2626;--red-lt:#fef2f2;--red-md:#ef4444;
+  --amber:#d97706;--amber-lt:#fffbeb;
+  --green:#15803d;--green-lt:#f0fdf4;--green-md:#22c55e;
+  --purple:#7c3aed;--purple-lt:#f5f3ff;
+  --cyan:#0891b2;--cyan-lt:#ecfeff;
+  --teal:#0d9488;--teal-lt:#f0fdfa;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Inter',sans-serif;
+  font-size:10pt;line-height:1.7;
+  color:#1e293b;background:#fff;
+}
+
+/* ─── PAGE ─── */
+.page{
+  width:210mm;min-height:297mm;
+  margin:0 auto 0;padding:16mm 18mm 22mm;
+  page-break-after:always;position:relative;
+  background:#fff;
+}
+.page:last-child{page-break-after:avoid;}
+@media print{
+  body{background:#fff;}
+  .page{margin:0;box-shadow:none;page-break-after:always;}
+  .no-print{display:none!important;}
+}
+@media screen{
+  body{background:#e5e7eb;}
+  .page{margin:12px auto;box-shadow:0 4px 24px rgba(0,0,0,.12);border-radius:4px;}
+}
+
+/* ─── COVER ─── */
+.cover{
+  width:210mm;min-height:297mm;margin:0 auto;
+  background:linear-gradient(145deg,#020617 0%,#0f172a 35%,#1e3a5f 70%,#1d4ed8 100%);
+  color:#fff;padding:20mm 22mm;
+  display:flex;flex-direction:column;justify-content:space-between;
+  page-break-after:always;position:relative;overflow:hidden;
+}
+.cover::before{
+  content:'';position:absolute;top:-80px;right:-60px;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(96,165,250,.15),transparent 70%);
+}
+.cover::after{
+  content:'';position:absolute;bottom:-60px;left:-40px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%);
+}
+.cover-top{position:relative;z-index:1;}
+.cover-badge{
+  display:inline-block;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);color:#93c5fd;
+  font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 14px;border-radius:20px;margin-bottom:20px;font-weight:600;
+}
+.cover h1{font-size:42pt;font-weight:900;line-height:1;letter-spacing:-.03em;margin-bottom:4px;}
+.cover h1 .accent{color:#60a5fa;}
+.cover .tagline{font-size:13pt;color:#94a3b8;margin-bottom:6px;font-weight:300;}
+.cover .full-name{font-size:9.5pt;color:#64748b;margin-bottom:28px;letter-spacing:.02em;}
+.cover-divider{width:50px;height:3px;background:linear-gradient(90deg,#60a5fa,#818cf8);border-radius:2px;margin:0 0 20px;}
+.cover-desc{font-size:10.5pt;color:#cbd5e1;max-width:460px;line-height:1.75;}
+.cover-stats{
+  display:flex;gap:24px;margin-top:28px;position:relative;z-index:1;
+}
+.cstat{text-align:center;}
+.cstat .n{font-size:22pt;font-weight:900;color:#60a5fa;line-height:1;}
+.cstat .l{font-size:7.5pt;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+.cover-footer{
+  border-top:1px solid rgba(255,255,255,.1);padding-top:14px;
+  font-size:8pt;color:#64748b;position:relative;z-index:1;
+  display:flex;justify-content:space-between;align-items:flex-end;
+}
+.cover-footer strong{color:#94a3b8;}
+
+/* ─── PAGE HEADER / FOOTER ─── */
+.ph{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1.5px solid var(--border);padding-bottom:8px;margin-bottom:18px;
+  font-size:8pt;color:var(--gray);
+}
+.ph .pname{font-weight:800;color:var(--navy);font-size:9pt;}
+.pf{
+  position:absolute;bottom:10mm;left:18mm;right:18mm;
+  display:flex;justify-content:space-between;
+  font-size:7pt;color:var(--gray);border-top:1px solid var(--border);padding-top:5px;
+}
+
+/* ─── TYPOGRAPHY ─── */
+h2.st{
+  font-size:14pt;font-weight:800;color:var(--navy);
+  margin:22px 0 8px;padding-left:12px;
+  border-left:4px solid var(--blue);letter-spacing:-.015em;
+}
+h2.st:first-child{margin-top:0;}
+h3.sst{
+  font-size:10.5pt;font-weight:700;color:var(--dark);
+  margin:14px 0 5px;
+}
+h4.ssst{font-size:9.5pt;font-weight:700;color:var(--slate);margin:10px 0 4px;}
+p{margin-bottom:8px;font-size:9.5pt;}
+.small{font-size:8.5pt;color:var(--gray);}
+.mono{font-family:'JetBrains Mono',monospace;font-size:8pt;background:#f1f5f9;padding:1px 4px;border-radius:3px;}
+strong{font-weight:700;}
+
+/* ─── INFO BOXES ─── */
+.ib{border-radius:8px;padding:10px 13px;margin:8px 0;font-size:9pt;line-height:1.6;}
+.ib.blue  {background:var(--blue-lt); border-left:3.5px solid var(--blue);}
+.ib.green {background:var(--green-lt);border-left:3.5px solid var(--green);}
+.ib.amber {background:var(--amber-lt);border-left:3.5px solid var(--amber);}
+.ib.red   {background:var(--red-lt);  border-left:3.5px solid var(--red);}
+.ib.purple{background:var(--purple-lt);border-left:3.5px solid var(--purple);}
+.ib.cyan  {background:var(--cyan-lt); border-left:3.5px solid var(--cyan);}
+.ib.teal  {background:var(--teal-lt); border-left:3.5px solid var(--teal);}
+.ib .ib-title{font-weight:800;font-size:9.5pt;margin-bottom:4px;}
+
+/* ─── TABLES ─── */
+table{width:100%;border-collapse:collapse;font-size:8.5pt;margin:8px 0;}
+th{background:var(--navy);color:#fff;padding:6px 10px;text-align:left;font-weight:600;font-size:8pt;letter-spacing:.02em;}
+td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+tr:nth-child(even) td{background:#f8fafc;}
+td:first-child{font-weight:600;color:var(--navy);}
+.tc{text-align:center;}
+.tg{color:var(--green);font-weight:700;}
+.tr{color:var(--red);font-weight:700;}
+.ta{color:var(--amber);font-weight:700;}
+
+/* ─── TEAM CARDS ─── */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0;}
+.tc-card{border:1.5px solid var(--border);border-radius:10px;padding:14px;position:relative;overflow:hidden;}
+.tc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.tc-card.m1::before{background:linear-gradient(90deg,#1d4ed8,#60a5fa);}
+.tc-card.m2::before{background:linear-gradient(90deg,#7c3aed,#c084fc);}
+.tc-card.m3::before{background:linear-gradient(90deg,#dc2626,#f87171);}
+.tm-num{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.m1 .tm-num{color:#1d4ed8;} .m2 .tm-num{color:#7c3aed;} .m3 .tm-num{color:#dc2626;}
+.tm-role{font-size:10pt;font-weight:800;color:var(--navy);margin-bottom:2px;}
+.tm-focus{font-size:8pt;color:var(--gray);font-style:italic;margin-bottom:8px;}
+.tm-tasks{list-style:none;font-size:8pt;color:var(--slate);}
+.tm-tasks li{padding:2px 0;border-bottom:1px solid #f1f5f9;}
+.tm-tasks li::before{content:'→ ';font-weight:700;}
+.m1 .tm-tasks li::before{color:#1d4ed8;} .m2 .tm-tasks li::before{color:#7c3aed;} .m3 .tm-tasks li::before{color:#dc2626;}
+.tm-presents{margin-top:8px;font-size:7.5pt;font-weight:700;border-radius:4px;padding:4px 8px;display:inline-block;}
+.m1 .tm-presents{background:#dbeafe;color:#1d4ed8;} .m2 .tm-presents{background:#f5f3ff;color:#7c3aed;} .m3 .tm-presents{background:#fef2f2;color:#dc2626;}
+
+/* ─── SCANNER CARDS ─── */
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+.sc-card{border:1px solid var(--border);border-radius:8px;padding:12px 13px;}
+.sc-name{font-size:8.5pt;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;}
+.sc-ff{font-size:7.5pt;color:var(--gray);font-style:italic;margin-bottom:6px;}
+.sc-body{font-size:8.5pt;color:var(--slate);line-height:1.6;}
+.tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;}
+.tag{display:inline-block;font-size:7pt;font-weight:700;padding:2px 7px;border-radius:12px;white-space:nowrap;}
+.tag.blue  {background:var(--blue-lt); color:var(--blue);}
+.tag.green {background:var(--green-lt);color:var(--green);}
+.tag.red   {background:var(--red-lt);  color:var(--red);}
+.tag.amber {background:var(--amber-lt);color:var(--amber);}
+.tag.purple{background:var(--purple-lt);color:var(--purple);}
+.tag.cyan  {background:var(--cyan-lt); color:var(--cyan);}
+
+/* ─── ARCH DIAGRAM ─── */
+.arch{border:1.5px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;}
+.arch-row{display:flex;align-items:stretch;gap:8px;margin-bottom:6px;}
+.arch-row:last-child{margin-bottom:0;}
+.arch-lbl{width:70px;flex-shrink:0;font-size:7.5pt;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;}
+.arch-pills{display:flex;flex-wrap:wrap;gap:5px;flex:1;align-items:center;}
+.ap{border-radius:5px;font-size:8pt;font-weight:600;padding:4px 10px;white-space:nowrap;}
+.ap.blue  {background:var(--blue-lt); color:var(--blue);}
+.ap.green {background:var(--green-lt);color:var(--green);}
+.ap.amber {background:var(--amber-lt);color:var(--amber);}
+.ap.purple{background:var(--purple-lt);color:var(--purple);}
+.ap.navy  {background:#f1f5f9;color:var(--navy);}
+.ap.red   {background:var(--red-lt);color:var(--red);}
+.arch-arr{text-align:center;font-size:8pt;color:var(--gray);padding:4px 0 4px 78px;border-left:0;}
+
+/* ─── FLOW STEPS ─── */
+.flow{display:flex;flex-direction:column;gap:0;margin:10px 0;}
+.flow-step{display:flex;gap:12px;align-items:flex-start;position:relative;}
+.flow-step:not(:last-child)::after{
+  content:'';position:absolute;left:16px;top:32px;bottom:-8px;
+  width:2px;background:var(--border);
+}
+.flow-num{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9pt;font-weight:800;
+}
+.flow-body{flex:1;padding-top:6px;padding-bottom:14px;}
+.flow-body strong{font-size:9.5pt;display:block;margin-bottom:2px;}
+.flow-body span{font-size:8.5pt;color:var(--slate);}
+
+/* ─── COMPARISON GRID ─── */
+.diff-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+.di{font-size:14pt;flex-shrink:0;line-height:1.3;}
+.dt strong{font-size:9.5pt;display:block;color:var(--navy);margin-bottom:2px;font-weight:700;}
+.dt span{font-size:8.5pt;color:var(--slate);}
+
+/* ─── FUTURE GRID ─── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0;}
+.fi{border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.fi-title{font-weight:700;font-size:9.5pt;color:var(--navy);margin-bottom:3px;}
+.fi-body{font-size:8.5pt;color:var(--slate);line-height:1.55;}
+
+/* ─── ML DIAGRAM ─── */
+.ml-layers{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.ml-layer{border-radius:8px;padding:10px 14px;font-size:8.5pt;}
+.ml-layer.l1{background:#dbeafe;border:1px solid #93c5fd;}
+.ml-layer.l2{background:#f5f3ff;border:1px solid #c084fc;}
+.ml-layer.l3{background:#fef9c3;border:1px solid #fde047;}
+.ml-layer.l4{background:#f0fdf4;border:1px solid #86efac;}
+.ml-lh{font-weight:800;font-size:9pt;margin-bottom:4px;}
+
+/* ─── TELEMETRY TABLE ─── */
+.tel-table td:nth-child(3){color:var(--red);font-weight:600;font-size:8pt;}
+
+/* ─── MODULE TABLE ─── */
+.mod-table td:first-child{width:130px;font-size:8.5pt;}
+.mod-table td:nth-child(2){font-size:8.5pt;color:var(--slate);}
+.mod-table td:nth-child(3){width:90px;font-size:7.5pt;font-family:'JetBrains Mono',monospace;color:var(--purple);background:#f5f3ff;}
+
+/* ─── SUMMARY BOXES ─── */
+.sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:10px 0;}
+.sum-box{border-radius:8px;padding:10px 12px;}
+.sum-box h4{font-size:9pt;font-weight:700;margin-bottom:6px;}
+.sum-box ul{list-style:none;font-size:8pt;line-height:1.9;}
+.sum-box ul li::before{content:'• ';}
+
+/* ─── PRINT BUTTON ─── */
+.print-btn{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--blue);color:#fff;border:none;
+  border-radius:28px;padding:10px 22px;font-size:9.5pt;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 16px rgba(29,78,216,.4);
+  font-family:'Inter',sans-serif;z-index:9999;
+}
+.print-btn:hover{background:#1e40af;}
+
+ul.bl{font-size:9pt;padding-left:18px;margin:6px 0 8px;}
+ul.bl li{margin-bottom:3px;color:var(--slate);}
+ol.nl{font-size:9pt;padding-left:18px;margin:6px 0 8px;}
+ol.nl li{margin-bottom:4px;color:var(--slate);}
+
+.two-col{columns:2;column-gap:18px;}
+.feat-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:9pt;}
+.feat-row .fi{font-size:12pt;flex-shrink:0;line-height:1.2;}
+.feat-row .fd strong{display:block;font-size:9pt;color:var(--navy);}
+.feat-row .fd span{font-size:8.5pt;color:var(--slate);}
+
+.quote{
+  border-left:4px solid var(--blue);background:var(--blue-lt);
+  padding:10px 14px;margin:10px 0;border-radius:0 8px 8px 0;
+  font-size:9pt;font-style:italic;color:var(--dark);
+}
+
+.score-example{
+  display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;
+}
+.se-item{
+  border-radius:8px;padding:8px 12px;flex:1;min-width:80px;text-align:center;
+}
+.se-item .s{font-size:18pt;font-weight:900;line-height:1;}
+.se-item .g{font-size:8pt;font-weight:700;margin-top:2px;}
+.se-item .d{font-size:7pt;color:var(--slate);margin-top:2px;}
+.se-a{background:#f0fdf4;} .se-a .s,.se-a .g{color:#15803d;}
+.se-b{background:#f0f9ff;} .se-b .s,.se-b .g{color:#0369a1;}
+.se-c{background:#fffbeb;} .se-c .s,.se-c .g{color:#b45309;}
+.se-d{background:#fff7ed;} .se-d .s,.se-d .g{color:#c2410c;}
+.se-f{background:#fef2f2;} .se-f .s,.se-f .g{color:#dc2626;}
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨 Save as PDF</button>
+
+<!-- ══════════ PAGE 1 — COVER ══════════ -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="cover-badge">🛡 Cybersecurity · Host Intrusion Detection System</div>
+    <h1>HIDS<br><span class="accent">Sentinel</span></h1>
+    <div class="tagline">An Intelligent Host Security Monitoring System</div>
+    <div class="full-name">Host Intrusion Detection System — Sentinel Edition</div>
+    <div class="cover-divider"></div>
+    <div class="cover-desc">
+      A real-time security monitoring dashboard that watches over your Windows computer 
+      24 hours a day — detecting threats, analysing suspicious behaviour with Artificial 
+      Intelligence, scanning firmware and hardware, and giving you a simple security grade 
+      so you always know how safe your machine is — all from a web browser.
+    </div>
+    <div class="cover-stats">
+      <div class="cstat"><div class="n">19</div><div class="l">Core Modules</div></div>
+      <div class="cstat"><div class="n">8</div><div class="l">Security Scanners</div></div>
+      <div class="cstat"><div class="n">3</div><div class="l">AI / ML Layers</div></div>
+      <div class="cstat"><div class="n">0–100</div><div class="l">Posture Score</div></div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div>
+      <strong>Course:</strong> Tools &amp; Techniques for Data Science &nbsp;|&nbsp;
+      <strong>Academic Year:</strong> 2025–26 &nbsp;|&nbsp;
+      <strong>Team:</strong> 3 Members<br>
+      <strong>Document Type:</strong> Detailed Project Report (General Audience)
+    </div>
+    <div style="text-align:right;color:#475569;">
+      Confidential — For Academic Use
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE 2 — TEAM ROLES ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Team Member Roles &amp; Task Distribution</span></div>
+
+  <h2 class="st">Team Member Roles &amp; Responsibilities</h2>
+  <p>
+    This project was designed, built, and tested by a team of three members. The project is split into three 
+    functional areas — Backend &amp; Security Core, Machine Learning &amp; Dashboard, and Security Scanning &amp; Research. 
+    Each member owns their area end-to-end and will present it during the project demonstration.
+  </p>
+
+  <div class="team-grid">
+    <div class="tc-card m1">
+      <div class="tm-num">Member 1</div>
+      <div class="tm-role">Backend Engineer &amp; System Architect</div>
+      <div class="tm-focus">Core engine · API routes · Authentication · Database</div>
+      <ul class="tm-tasks">
+        <li>Overall system design and architecture decisions</li>
+        <li>FastAPI REST API — all 40+ endpoints</li>
+        <li>User login, registration, JWT token security</li>
+        <li>Password hashing with bcrypt</li>
+        <li>MongoDB Atlas database integration</li>
+        <li>Real-time system monitor (CPU/RAM/disk/network)</li>
+        <li>WebSocket broadcaster (live data push)</li>
+        <li>SOAR automated response module</li>
+        <li>UAC-elevated firmware scanner</li>
+        <li>Rate limiting and API security hardening</li>
+      </ul>
+      <div class="tm-presents">📋 Presents: Sections 1, 2, 9 — Architecture, Modules &amp; How It Works</div>
+    </div>
+
+    <div class="tc-card m2">
+      <div class="tm-num">Member 2</div>
+      <div class="tm-role">ML Engineer &amp; Frontend Developer</div>
+      <div class="tm-focus">Machine Learning · Telemetry · Dashboard UI</div>
+      <ul class="tm-tasks">
+        <li>React.js frontend — entire dashboard design</li>
+        <li>All UI components, charts, and live graphs</li>
+        <li>Isolation Forest ML anomaly detection</li>
+        <li>Google Gemini AI integration for process scoring</li>
+        <li>Statistical baseline threat detection (Z-score)</li>
+        <li>Real-time telemetry data streaming</li>
+        <li>Alert management and event analytics</li>
+        <li>Deep scan results UI with clickable findings</li>
+        <li>MITRE ATT&amp;CK mapping in alerts</li>
+        <li>PDF/DOCX report generation module</li>
+      </ul>
+      <div class="tm-presents">📋 Presents: Sections 6, 8 — Telemetry &amp; Machine Learning</div>
+    </div>
+
+    <div class="tc-card m3">
+      <div class="tm-num">Member 3</div>
+      <div class="tm-role">Security Scanner &amp; Research Analyst</div>
+      <div class="tm-focus">Threat scanning · YARA · Windows internals · Research</div>
+      <ul class="tm-tasks">
+        <li>Deep hardware/firmware security scanner</li>
+        <li>YARA malware signature scanning engine</li>
+        <li>Startup entry &amp; persistence mechanism detection</li>
+        <li>Windows Registry and BIOS/UEFI inspection</li>
+        <li>Network port and connection analyser</li>
+        <li>File Integrity Monitoring (FIM) module</li>
+        <li>Windows Event Log reader &amp; analyser</li>
+        <li>Market research and competitor analysis</li>
+        <li>Real-world use-case documentation</li>
+        <li>Future roadmap planning</li>
+      </ul>
+      <div class="tm-presents">📋 Presents: Sections 3, 4, 5, 7 — Scanners, Market &amp; Use-Cases</div>
+    </div>
+  </div>
+
+  <h2 class="st" style="margin-top:20px;">How to Read This Report</h2>
+  <div class="ib blue">
+    <div class="ib-title">📖 No Technical Background Required</div>
+    This document is written for a reader who has no knowledge of cybersecurity or software development. 
+    Every technical term is explained using everyday analogies before being defined formally. 
+    Coloured boxes highlight key points, tables summarise comparisons, and diagrams show how 
+    the system flows. You do not need to understand code to understand this report.
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 2</span></div>
+</div>
+
+<!-- ══════════ PAGE 3 — PROJECT SUMMARY ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 1 — Project Summary</span></div>
+
+  <h2 class="st">1. Project Summary</h2>
+
+  <div class="quote">
+    "Every 39 seconds, a cyberattack occurs somewhere in the world. Most victims never know their computer 
+    was compromised until the damage is already done — files encrypted, passwords stolen, data sold. 
+    HIDS Sentinel is designed to catch these threats in real-time, before the damage happens."
+  </div>
+
+  <h3 class="sst">The Problem This Project Solves</h3>
+  <p>
+    Today, almost everyone uses a computer for banking, personal communication, business operations, or 
+    storing important documents. Yet most people have only a basic antivirus program protecting them — 
+    software that only recognises threats it has already seen before. New malware, firmware-level attacks, 
+    and sophisticated hacking tools are designed specifically to evade traditional antivirus.
+  </p>
+  <p>
+    Professional-grade security monitoring tools (called SIEM systems — Security Information and Event 
+    Management) exist, but they cost hundreds of thousands of rupees per year, require a dedicated IT 
+    department to operate, and are designed for large corporations — not individuals, students, clinics, 
+    or small businesses.
+  </p>
+
+  <h3 class="sst">The Solution — HIDS Sentinel</h3>
+  <p>
+    <strong>HIDS</strong> stands for <strong>Host Intrusion Detection System</strong>. 
+    "Host" refers to a single computer (your machine). "Intrusion Detection" means automatically 
+    discovering signs that something unauthorised is happening on that machine.
+    "Sentinel" means a guard who stands watch continuously.
+  </p>
+  <p>
+    HIDS Sentinel brings enterprise-level security monitoring to anyone who can open a web browser. 
+    It is installed once on a Windows computer, runs as a background service, and you access the 
+    security dashboard from any browser — on the same machine or from another device on your network.
+  </p>
+
+  <div class="ib green">
+    <div class="ib-title">✅ What HIDS Sentinel gives you in plain English</div>
+    <ul class="bl" style="margin-bottom:0;">
+      <li>A <strong>live security score (0–100)</strong> telling you how safe your computer is right now</li>
+      <li>A <strong>real-time dashboard</strong> showing CPU, memory, disk, and network usage as live graphs</li>
+      <li>Automatic detection of <strong>malware, suspicious programs, and hacker tools</strong></li>
+      <li>A <strong>deep hardware scan</strong> that checks your BIOS chip, TPM security module, and Secure Boot</li>
+      <li>A full list of <strong>every program that starts automatically</strong> when your computer boots</li>
+      <li><strong>AI-powered analysis</strong> of running processes — flagging anything that behaves abnormally</li>
+      <li>Downloadable <strong>PDF security reports</strong> you can share with your IT support person</li>
+    </ul>
+  </div>
+
+  <h3 class="sst">The Security Posture Score — Your Machine's Grade</h3>
+  <p>
+    The most visible feature of HIDS Sentinel is the <strong>Security Posture Score</strong> — 
+    a single number between 0 and 100 that tells you how secure your machine is, like a school grade:
+  </p>
+
+  <div class="score-example">
+    <div class="se-item se-a"><div class="s">90–100</div><div class="g">Grade A</div><div class="d">Excellent. Minimal risks found.</div></div>
+    <div class="se-item se-b"><div class="s">75–89</div><div class="g">Grade B</div><div class="d">Good. Minor issues to address.</div></div>
+    <div class="se-item se-c"><div class="s">55–74</div><div class="g">Grade C</div><div class="d">Fair. Several risks detected.</div></div>
+    <div class="se-item se-d"><div class="s">35–54</div><div class="g">Grade D</div><div class="d">Poor. Multiple serious issues.</div></div>
+    <div class="se-item se-f"><div class="s">0–34</div><div class="g">Grade F</div><div class="d">Critical. Immediate action required.</div></div>
+  </div>
+
+  <p>
+    Each security finding deducts points from a starting score of 100. For example, a missing TPM chip 
+    might deduct 5 points, a suspicious startup program deducts 10 points, and Secure Boot being disabled 
+    deducts 15 points. Every finding comes with a plain-English "Fix" instruction so you know exactly what 
+    to do.
+  </p>
+
+  <h3 class="sst">Who Built This and Why?</h3>
+  <p>
+    This project was built as part of an academic course on Data Science tools. The team chose a cybersecurity 
+    project because it naturally combines multiple disciplines — data streaming (telemetry), machine learning 
+    (anomaly detection), web development (the dashboard), database management (MongoDB), and systems 
+    programming (reading Windows internals). It is a real, working tool — not a simulation — 
+    that produces actual security data from the computer it runs on.
+  </p>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 3</span></div>
+</div>
+
+<!-- ══════════ PAGE 4 — WHAT IT DOES + ARCHITECTURE ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 3 &amp; 9 — What It Does &amp; Architecture</span></div>
+
+  <h2 class="st">3. What This Project Actually Does — A Complete Walkthrough</h2>
+
+  <p>HIDS Sentinel works like a team of specialised security guards, each watching a different area of your computer simultaneously. Here is exactly what happens from the moment you start the system:</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-body">
+        <strong>Server Starts — MongoDB Connects &amp; Baseline Loads</strong>
+        <span>The Python backend (FastAPI) starts up, connects to MongoDB Atlas database, loads the last 1,000 security events to build a behavioural baseline, and initialises all 8 security scanners. The Isolation Forest ML model is trained on synthetic baseline data in memory.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-body">
+        <strong>You Open the Browser Dashboard &amp; Log In</strong>
+        <span>You go to <span class="mono">http://localhost:8000</span> in your browser. A React.js application loads — this is your security cockpit. You log in with your username and password. The server verifies your identity using bcrypt password hashing and issues a JWT token (a temporary digital pass valid for 60 minutes) so you don't have to log in on every action.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-body">
+        <strong>Live Telemetry Begins — Dashboard Updates Every 3 Seconds</strong>
+        <span>The browser opens a WebSocket connection — a permanent live channel — to the server. Every 3 seconds, the monitor module reads your CPU usage, RAM usage, disk read/write speed, and network upload/download speed and pushes this data to your browser. The line graphs on the dashboard update in real-time without you refreshing the page.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-body">
+        <strong>You Click "Start Deep Scan" — A Full System Inspection Begins</strong>
+        <span>The Deep System Scanner runs — this takes 20–45 seconds. It inspects: BIOS firmware version, TPM chip status, Secure Boot setting, all startup programs, scheduled tasks, open network ports, every running process (checked against ML and known-bad lists), USB devices, and Windows security settings.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-body">
+        <strong>Results Appear — Posture Score Calculated</strong>
+        <span>Each finding is scored and deductions are applied. The final score (0–100) and grade appear. Every finding card is <strong>clickable</strong> — clicking it opens a popup listing the exact suspicious items (e.g. the specific startup entry by name, path, and registry location). You can then switch between 9 tabs: Posture Score, Machine Info, Firmware/BIOS, Hardware, Security, Persistence, Network, Processes, and Devices.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <div class="flow-body">
+        <strong>Events Are Logged — Alerts Fire Automatically</strong>
+        <span>If any activity crosses the threat threshold (score ≥ 35), an alert is created and stored in MongoDB. Critical alerts (score ≥ 75) also trigger the SOAR module which can automatically take action — like terminating a malicious process. All events and alerts remain searchable in the History page.</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="st">9. Project Architecture — How Everything Connects</h2>
+  <p>The system has three distinct layers that communicate with each other:</p>
+
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-lbl">Browser (UI)</div>
+      <div class="arch-pills">
+        <span class="ap green">⚛ React.js Dashboard</span>
+        <span class="ap green">📊 Recharts Live Graphs</span>
+        <span class="ap green">🔒 Login / Auth UI</span>
+        <span class="ap green">🔬 Scanner Results</span>
+        <span class="ap green">🚨 Alert Centre</span>
+      </div>
+    </div>
+    <div class="arch-arr">↕ HTTPS REST API &amp; WebSocket (real-time bidirectional)</div>
+    <div class="arch-row">
+      <div class="arch-lbl">Python Backend</div>
+      <div class="arch-pills">
+        <span class="ap blue">⚙ FastAPI Server</span>
+        <span class="ap blue">🧠 ML Classifier</span>
+        <span class="ap blue">📡 System Monitor</span>
+        <span class="ap blue">🔎 Deep Scanner</span>
+        <span class="ap blue">🦠 YARA Engine</span>
+        <span class="ap blue">⚡ SOAR Module</span>
+        <span class="ap blue">📁 FIM Watcher</span>
+        <span class="ap blue">🔐 Auth Module</span>
+      </div>
+    </div>
+    <div class="arch-arr">↕ Registry reads · PowerShell calls · psutil OS calls · MongoDB writes</div>
+    <div class="arch-row">
+      <div class="arch-lbl">Data Layer</div>
+      <div class="arch-pills">
+        <span class="ap navy">🗄 MongoDB Atlas</span>
+        <span class="ap navy">📋 Windows Registry</span>
+        <span class="ap navy">🖥 Windows Event Log</span>
+        <span class="ap navy">💾 OS / Hardware APIs</span>
+        <span class="ap purple">✨ Gemini AI API</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ib amber">
+    <div class="ib-title">🔄 Data Flow in Plain English</div>
+    Your browser asks the Python server for information → The Python server reads your computer's 
+    real data (process list, ports, registry keys, hardware) using Windows system calls → 
+    It analyses the data using ML and security rules → It saves important events to MongoDB → 
+    It sends the results back to your browser → Your dashboard updates. 
+    This cycle happens continuously for live metrics and on-demand for scans.
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 4</span></div>
+</div>
+
+<!-- ══════════ PAGE 5 — TECHNICAL MODULES ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 2 — Technical Modules (Part 1)</span></div>
+
+  <h2 class="st">2. Technical Modules — What Each Part of the System Does</h2>
+  <p>
+    A module (also called a file or component) is like a department inside a company — 
+    each one has a specific job and talks to the others when needed. 
+    HIDS Sentinel has 19 Python modules and a complete React.js frontend. 
+    Here is what each one does, explained without jargon:
+  </p>
+
+  <table class="mod-table">
+    <thead>
+      <tr><th>Module</th><th>What It Does (Plain English)</th><th>Key Technology</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>main.py</td>
+        <td><strong>The front door.</strong> Starts the entire server. Connects to MongoDB, runs startup checks, initialises all other modules, and begins the background monitor loop. Everything starts from here.</td>
+        <td>FastAPI, asyncio, uvicorn</td>
+      </tr>
+      <tr>
+        <td>monitor.py</td>
+        <td><strong>The health monitor.</strong> Continuously reads CPU usage, memory (RAM), disk speed, network speed, system uptime, and active process count every 3 seconds. Caches the latest reading so any connected browser can get it instantly without waiting. Also stores hardware metadata (CPU model, total RAM, manufacturer) at startup by reading the Windows Registry — no internet needed.</td>
+        <td>psutil, winreg, asyncio</td>
+      </tr>
+      <tr>
+        <td>system_scanner.py</td>
+        <td><strong>The deep inspector.</strong> The largest module (900+ lines). Performs a comprehensive security scan: reads BIOS manufacturer and version from the Windows Registry, checks the TPM chip using PowerShell's Get-PnpDevice command (works without admin rights), verifies Secure Boot state, lists all startup programs from the Registry, enumerates all scheduled tasks, lists every open network port and which program is using it, analyses every running process, lists USB/PnP devices, and computes the final security posture score with grade.</td>
+        <td>winreg, psutil, subprocess, PowerShell</td>
+      </tr>
+      <tr>
+        <td>elevated_scanner.py</td>
+        <td><strong>The privileged hardware scanner.</strong> Some Windows security data (like TPM chip ownership and full Secure Boot state) is locked behind Administrator access. This module requests that access by triggering a Windows UAC dialog (the blue "Do you want to allow this?" popup). Once approved, it runs an elevated PowerShell script that reads Get-Tpm, Confirm-SecureBootUEFI, Win32_Tpm, and Windows Defender status, writes the result to a temporary file in %TEMP%, and the Python backend reads and deletes the temp file. Nothing is permanently stored in elevated mode.</td>
+        <td>ctypes, ShellExecuteW, PowerShell, tempfile</td>
+      </tr>
+      <tr>
+        <td>ai_classifier.py</td>
+        <td><strong>The AI threat analyst.</strong> Contains the two-layer AI system. Layer 1 uses scikit-learn's Isolation Forest ML model to detect abnormal process behaviour by analysing 6 features (CPU, memory, command length, risk flags). Layer 2 sends suspicious processes to Google's Gemini 2.5 Flash AI for a second opinion with contextual analysis. If no API key is configured, a rule-based fallback engine still provides threat categorisation.</td>
+        <td>scikit-learn, numpy, Gemini API (gemini-2.5-flash)</td>
+      </tr>
+      <tr>
+        <td>detector.py</td>
+        <td><strong>The scoring engine.</strong> When a security event is submitted (e.g. a failed login), this module calculates a danger score using two methods combined: (1) rule-based weights (a brute-force event starts at 18 points, privilege escalation at 35 points), and (2) statistical anomaly scoring comparing the current event's metrics against the baseline average from the last 1,000 events. The two scores are combined (45% anomaly + 75% rule weight) to produce a final severity: Low / Medium / High / Critical.</td>
+        <td>Python statistics (mean, stdev), MITRE ATT&amp;CK mapping</td>
+      </tr>
+      <tr>
+        <td>yara_scanner.py</td>
+        <td><strong>The malware fingerprinter.</strong> Compares files or text strings against YARA rules — pattern definitions that describe the unique code signatures of known malware. Built-in rules detect Mimikatz (credential stealer), ransomware file encryption patterns, Cobalt Strike beacons (professional hacker toolkit), and web shells (backdoors placed in web servers). Returns match name, severity, description, and MITRE tags.</td>
+        <td>YARA rules, pattern matching</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 5</span></div>
+</div>
+
+<!-- ══════════ PAGE 6 — MODULES (PART 2) ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 2 — Technical Modules (Part 2)</span></div>
+
+  <table class="mod-table">
+    <thead>
+      <tr><th>Module</th><th>What It Does (Plain English)</th><th>Key Technology</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>auth.py &amp; mongo_auth.py</td>
+        <td><strong>The security door.</strong> Handles everything related to user accounts. When you register, your password is hashed using bcrypt (a one-way transformation — the original password can never be recovered from the hash, even if the database is stolen). When you log in, the submitted password is hashed and compared to the stored hash. If they match, a JWT (JSON Web Token) is issued — a digitally signed, time-limited pass that proves your identity on every subsequent API request without re-entering your password. Rate limiting (5 failed attempts = temporary lockout) prevents brute-force attacks.</td>
+        <td>bcrypt, python-jose, JWT, slowapi, MongoDB</td>
+      </tr>
+      <tr>
+        <td>fim.py</td>
+        <td><strong>The file guardian.</strong> File Integrity Monitoring creates SHA-256 "fingerprint" hashes of important system files. SHA-256 means if even a single character in a file changes, the fingerprint completely changes — making tampering immediately detectable. If a watched file is modified by anything other than Windows Update, an alert fires. This is how ransomware is caught in its earliest stage — the moment it starts changing files.</td>
+        <td>watchdog, hashlib (SHA-256), asyncio</td>
+      </tr>
+      <tr>
+        <td>os_event_log.py</td>
+        <td><strong>The Windows diary reader.</strong> Windows secretly records everything in its Security Event Log — failed logins, account lockouts, new services being installed, system shutdowns. This module reads those logs using pywin32 (Python's Windows API bridge) and filters for security-relevant events. Each event is mapped to a MITRE ATT&amp;CK technique code — the internationally standardised way that professional security teams categorise hacker tactics (e.g. T1110 = Brute Force, T1068 = Privilege Escalation).</td>
+        <td>pywin32, Windows Security Event Log, MITRE ATT&amp;CK</td>
+      </tr>
+      <tr>
+        <td>soar.py</td>
+        <td><strong>The auto-responder.</strong> SOAR stands for Security Orchestration, Automation and Response. When a Critical alert fires, SOAR can take automated action without waiting for a human. Possible actions include: terminating a malicious process, adding a firewall block rule for a suspicious IP address, or locking a user account after too many failed logins. Think of it as the system calling the fire department automatically when smoke is detected, rather than waiting for a person to notice and make the call.</td>
+        <td>subprocess, Windows Firewall API, psutil process management</td>
+      </tr>
+      <tr>
+        <td>broadcaster.py</td>
+        <td><strong>The live news ticker.</strong> Manages WebSocket connections — the permanent live channels between the server and each connected browser. When a new alert is created or metrics update, the broadcaster pushes this information to all connected browsers simultaneously. This is what makes the dashboard "live" — graphs update without you pressing refresh, and alert notifications appear the moment a threat is detected.</td>
+        <td>FastAPI WebSocket, asyncio</td>
+      </tr>
+      <tr>
+        <td>agent_manager.py</td>
+        <td><strong>The network coordinator.</strong> Manages lightweight "agent" programs that can be installed on other computers in the same network. Each remote agent checks in with the central HIDS Sentinel server, reporting its IP address, hostname, operating system, and online status. This is the foundation for monitoring multiple machines from one dashboard (currently in early development).</td>
+        <td>MongoDB, asyncio, HTTP heartbeat</td>
+      </tr>
+      <tr>
+        <td>storage.py</td>
+        <td><strong>The long-term memory.</strong> Handles all reads and writes to the MongoDB database. Saves every security event, alert, host snapshot, and scan result permanently so you can look back at the history of what happened on your computer days or weeks later. Uses Motor — an asynchronous MongoDB driver — so database operations don't slow down the live dashboard.</td>
+        <td>Motor (async MongoDB), pymongo</td>
+      </tr>
+      <tr>
+        <td>reporting.py</td>
+        <td><strong>The report printer.</strong> Takes the current set of alerts, events, and scan results and packages them into a professionally formatted downloadable PDF or Word (DOCX) document. Security managers can share these reports with executives or compliance auditors. The PDF includes a summary page, alert table, event timeline, and recommendations.</td>
+        <td>ReportLab (PDF), python-docx (Word)</td>
+      </tr>
+      <tr>
+        <td>security.py</td>
+        <td><strong>The security utilities..</strong> A helper library with security-focused functions used by other modules — input validation (preventing malicious data being submitted through the API), sanitisation functions, and security configuration constants (e.g. JWT expiry times, allowed CORS origins, algorithm settings).</td>
+        <td>python-jose, FastAPI security utilities</td>
+      </tr>
+      <tr>
+        <td>simulator.py</td>
+        <td><strong>The test event generator.</strong> Used during development and demonstrations to generate realistic-looking security events (failed logins, process starts, file changes) so the system can be tested without waiting for real threats to occur. Generates events that match the same format as real Windows events.</td>
+        <td>Python random, faker-style generation</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 6</span></div>
+</div>
+
+<!-- ══════════ PAGE 7 — SCANNERS ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 5 — Security Scanners in Detail</span></div>
+
+  <h2 class="st">5. The Scanners — Full Names, How They Work &amp; What They Return</h2>
+
+  <p>Each scanner is an independent inspection engine. Here is a complete description of all 8 scanners:</p>
+
+  <h3 class="sst">🔬 Scanner 1: Deep System Security Scanner</h3>
+  <p><strong>Full name:</strong> Deep Hardware and Operating System Security Scanner</p>
+  <p>
+    This is the flagship scanner — the most comprehensive inspection the system performs. It is the equivalent 
+    of taking your car for a full MOT service, but for your computer's security. When you click "Start Deep Scan", 
+    the system spends 20–45 seconds reading data from 9 different areas of your computer simultaneously:
+  </p>
+  <ul class="bl">
+    <li><strong>Firmware/BIOS:</strong> Reads the BIOS manufacturer (e.g. American Megatrends / AMI), model, version string, and release date from the Windows Registry. Older BIOS versions may have unpatched vulnerabilities.</li>
+    <li><strong>TPM Chip:</strong> Checks if a Trusted Platform Module hardware chip is present and what version it is (1.2 or 2.0). TPM 2.0 is required for Windows 11 and provides hardware-level encryption.</li>
+    <li><strong>Secure Boot:</strong> Verifies whether Secure Boot is enabled — a UEFI feature that prevents unauthorised operating systems from loading during startup (blocks bootkit malware).</li>
+    <li><strong>Startup Programs:</strong> Reads every program registered to auto-start from the Windows Registry (HKLM\Run, HKCU\Run) and the Startup folder, flags unknown or unsigned entries.</li>
+    <li><strong>Scheduled Tasks:</strong> Lists all tasks scheduled to run automatically, highlighting any created by non-Microsoft publishers.</li>
+    <li><strong>Open Network Ports:</strong> Lists every TCP/UDP port your computer is listening on with the associated process name.</li>
+    <li><strong>Running Processes:</strong> Lists every currently running program with PID, CPU/memory usage, and AI-powered suspicion assessment.</li>
+    <li><strong>USB/PnP Devices:</strong> Lists all connected hardware devices.</li>
+    <li><strong>Windows Security:</strong> Checks Windows Defender and firewall status.</li>
+  </ul>
+  <p><strong>Output:</strong> A Security Posture Score (0–100), a Grade (A–F), and a list of findings — each with a severity label (Critical/High/Medium/Low), deduction amount, plain-English description, and a specific fix recommendation. Every finding card is clickable to show the exact suspicious items.</p>
+
+  <h3 class="sst">🦠 Scanner 2: YARA Malware Signature Scanner</h3>
+  <p><strong>Full name:</strong> Yet Another Recursive Acronym — Malware Signature Pattern Scanner</p>
+  <p>
+    YARA is an industry-standard tool used by antivirus companies and government cybersecurity agencies worldwide. 
+    It works like a fingerprint database. Every piece of malware has unique patterns in its code — specific 
+    sequences of bytes, text strings, or structural characteristics that identify it. These patterns are 
+    described in "YARA rules" — text files that define what to look for.
+  </p>
+  <p>
+    The HIDS Sentinel YARA scanner includes built-in rules for 4 malware families:
+  </p>
+  <ul class="bl">
+    <li><strong>Mimikatz</strong> — A password extraction tool used by hackers to steal Windows credentials from memory. It is detected by its unique internal strings and function names.</li>
+    <li><strong>Ransomware</strong> — Detected by patterns common to ransomware: ransom note text strings ("your files have been encrypted"), encryption function signatures, and file extension manipulation patterns.</li>
+    <li><strong>Cobalt Strike</strong> — A professional penetration testing toolkit often misused by attackers. Detected by its shellcode beacon patterns and unique API call sequences.</li>
+    <li><strong>Web Shells</strong> — Backdoor scripts attackers plant on web servers. Detected by PHP/ASP/JSP code patterns that execute system commands from web requests.</li>
+  </ul>
+  <p><strong>Output:</strong> For each file or string scanned: a Clean/Malicious verdict, matched rule name, severity rating, text description of the threat, and MITRE ATT&amp;CK technique code.</p>
+
+  <h3 class="sst">🤖 Scanner 3: AI Process Intelligence Scanner</h3>
+  <p><strong>Full name:</strong> AI-Enhanced Running Process Security Inspector</p>
+  <p>
+    This scanner examines every program currently running on your computer. For each process, it extracts: 
+    name, full command-line arguments, CPU usage %, memory usage %, and whether the executable is digitally 
+    signed. It then runs the process data through three analysis layers (explained fully in Section 8) and 
+    returns a confidence score (0–100%) for each suspicious process along with a human-readable reason.
+  </p>
+
+  <h3 class="sst">🔐 Scanner 4: Firmware &amp; TPM Elevated Scanner</h3>
+  <p><strong>Full name:</strong> UAC-Elevated Firmware and Trusted Platform Module Inspector</p>
+  <p>
+    Windows locks certain hardware data behind Administrator-level access. This scanner requests that access 
+    by triggering a Windows UAC (User Account Control) dialog — the standard "Do you want to allow this 
+    app to make changes to your device?" blue popup. Once the user clicks "Yes", an elevated PowerShell script 
+    runs that accesses Get-Tpm (TPM state), Confirm-SecureBootUEFI (actual enforcement status), 
+    Win32_Tpm CIM class (manufacturer), and Get-MpComputerStatus (full Windows Defender configuration 
+    including signature age, last scan time, and all protection settings). Results are written to a temporary 
+    JSON file, read by the Python backend, and the temp file is immediately deleted. Nothing elevated remains.
+  </p>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 7</span></div>
+</div>
+
+<!-- ══════════ PAGE 8 — SCANNERS (CONTINUED) ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 5 — Scanners (Continued)</span></div>
+
+  <h3 class="sst">🚀 Scanner 5: Persistence Mechanism Scanner</h3>
+  <p><strong>Full name:</strong> System Startup &amp; Persistence Mechanism Inspector</p>
+  <p>
+    "Persistence" in cybersecurity means a hacker's ability to keep their malware running even after 
+    the computer is rebooted. The most common way to achieve this is to register a malicious program 
+    to start automatically every time Windows boots. This scanner examines every known persistence location:
+  </p>
+  <ul class="bl">
+    <li><strong>HKLM\Run and HKCU\Run:</strong> Windows Registry keys where programs register to auto-start. HKLM affects all users on the machine; HKCU affects only the current user. These are the most common places malware hides.</li>
+    <li><strong>Startup Folders:</strong> Windows file system folders (one per user, one for all users) where shortcuts to programs can be placed to make them auto-start.</li>
+    <li><strong>Scheduled Tasks:</strong> The Windows Task Scheduler can run programs at specific times or events. Attackers use this to run malware at login, at a specific time, or on a trigger.</li>
+  </ul>
+  <p>
+    For each entry found, the scanner records: the program name, full path/command, the registry key or folder location, and whether it looks suspicious (e.g. running from a temp directory, using unusual arguments, or having an unrecognised publisher name).
+  </p>
+  <p><strong>Output:</strong> A clickable finding card showing the count of suspicious entries. Clicking it opens a popup listing every suspicious startup item by name, path, and registry location — highlighted in red.</p>
+
+  <h3 class="sst">🌐 Scanner 6: Network Port Analyser</h3>
+  <p><strong>Full name:</strong> Active Network Connection and Open Port Analyser</p>
+  <p>
+    Every open port on your computer is like an unlocked door. Port numbers range from 0 to 65,535 — 
+    some are standard and expected (port 443 for HTTPS websites, port 80 for HTTP), but others are 
+    suspicious if open unexpectedly. This scanner lists every TCP and UDP port that your computer is 
+    listening on, along with the process name responsible and whether it is bound to all network 
+    interfaces (public-facing) or just the local machine. Unusual high-numbered ports, or known malware 
+    command-and-control ports, are flagged immediately.
+  </p>
+
+  <h3 class="sst">📁 Scanner 7: File Integrity Monitor (FIM)</h3>
+  <p><strong>Full name:</strong> Real-Time File System Integrity Monitoring System</p>
+  <p>
+    This scanner works differently from the others — it runs continuously in the background rather than 
+    on demand. Using Python's watchdog library, it watches a list of important directories (system files, 
+    configuration files) for any changes. When a file is created, modified, or deleted, the event is 
+    immediately logged and compared against a hash database. The SHA-256 hash of each file is like its 
+    unique fingerprint — if the fingerprint changes, the file has been altered. 
+    This is the earliest possible warning of ransomware (which modifies files to encrypt them) 
+    or rootkit installation (which modifies system files to hide itself).
+  </p>
+
+  <h3 class="sst">📋 Scanner 8: Windows Event Log Analyser</h3>
+  <p><strong>Full name:</strong> Windows Security Event Log Reader and Threat Classifier</p>
+  <p>
+    Windows maintains a detailed journal of everything that happens on your computer in its Event Log. 
+    Most of these entries are routine, but hidden among them are security-critical events:
+  </p>
+  <ul class="bl">
+    <li><strong>Event ID 4625</strong> — A login attempt failed. Multiple failures in a short time = brute-force attack.</li>
+    <li><strong>Event ID 4720</strong> — A new user account was created. Was it authorised?</li>
+    <li><strong>Event ID 4672</strong> — Special privilege (Administrator) was assigned. Was this expected?</li>
+    <li><strong>Event ID 7045</strong> — A new Windows service was installed. Attackers often install services to gain persistent admin access.</li>
+    <li><strong>Event ID 4648</strong> — Login using explicit credentials (password was typed). This can indicate an attacker using stolen credentials.</li>
+  </ul>
+  <p>
+    The scanner pulls these events, converts the Windows numeric codes to readable descriptions, 
+    and maps each to a MITRE ATT&amp;CK technique code — the global standard used by security professionals.
+  </p>
+
+  <div class="ib teal" style="margin-top:10px;">
+    <div class="ib-title">📚 What is MITRE ATT&amp;CK?</div>
+    MITRE ATT&amp;CK (Adversarial Tactics, Techniques and Common Knowledge) is a publicly available 
+    knowledge base maintained by the MITRE Corporation and used by cybersecurity teams worldwide. 
+    It catalogues every known technique that real hackers use to compromise computers, broken down 
+    into 14 tactic categories (like Initial Access, Privilege Escalation, Exfiltration). 
+    Each technique has a unique code (T1110 = Brute Force, T1059 = Command Execution, etc.). 
+    HIDS Sentinel automatically tags every alert with the relevant ATT&amp;CK codes so that any 
+    security analyst reviewing the alerts immediately understands what type of attack was attempted.
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 8</span></div>
+</div>
+
+<!-- ══════════ PAGE 9 — TELEMETRY ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 6 — Telemetry</span></div>
+
+  <h2 class="st">6. What is Telemetry and How Does It Work in HIDS Sentinel?</h2>
+
+  <div class="ib blue">
+    <div class="ib-title">📡 What is Telemetry — The Simple Explanation</div>
+    Telemetry means automatically collecting measurements from a remote system and sending them 
+    somewhere else to be monitored, without anyone manually taking those readings. The word comes 
+    from Greek: "tele" (from afar) + "metron" (measurement). A Formula 1 racing car sends speed, 
+    engine temperature, tyre wear, and brake temperature data to the team's garage in real-time — 
+    that is telemetry. An aircraft's black box is a telemetry recorder. A weather station sending 
+    hourly temperature readings to a server is telemetry. In HIDS Sentinel, <strong>your computer 
+    is the data source</strong> and <strong>your browser dashboard is the monitoring station</strong>.
+  </div>
+
+  <h3 class="sst">How HIDS Sentinel Collects Telemetry</h3>
+  <p>
+    Every <strong>3 seconds</strong>, the <span class="mono">monitor.py</span> module runs a background 
+    task (called an async coroutine) that:
+  </p>
+  <ol class="nl">
+    <li>Calls <span class="mono">psutil.cpu_percent()</span> — reads CPU usage from the operating system kernel</li>
+    <li>Calls <span class="mono">psutil.virtual_memory()</span> — reads RAM usage including total, used, and available</li>
+    <li>Calls <span class="mono">psutil.disk_io_counters()</span> — reads cumulative disk read and write byte counts, then calculates speed per second by comparing to the previous reading</li>
+    <li>Calls <span class="mono">psutil.net_io_counters()</span> — same approach for network upload/download speed</li>
+    <li>Calls <span class="mono">psutil.boot_time()</span> — calculates how long the system has been running (uptime)</li>
+    <li>Packages all readings into a JSON snapshot and pushes it to the WebSocket broadcaster</li>
+    <li>The broadcaster immediately sends the snapshot to every connected browser</li>
+    <li>The browser receives the data and updates the live graphs without any page refresh</li>
+  </ol>
+
+  <h3 class="sst">What Telemetry Data is Collected and Why It Matters for Security</h3>
+
+  <table class="tel-table">
+    <thead>
+      <tr><th>Metric</th><th>What It Measures</th><th>Security Significance (What to Watch For)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CPU Usage (%)</td>
+        <td>Percentage of processor time being used right now</td>
+        <td>Sudden sustained 100% CPU: often indicates crypto-mining malware or ransomware encryption process running</td>
+      </tr>
+      <tr>
+        <td>Memory / RAM (%)</td>
+        <td>How much of your computer's working memory is occupied</td>
+        <td>Rapid memory increase: may indicate a memory injection attack or a program loading a large malicious payload into RAM</td>
+      </tr>
+      <tr>
+        <td>Disk Write Speed (MB/s)</td>
+        <td>How fast data is being written to your storage drive</td>
+        <td>Sudden high disk write with no expected activity: ransomware encrypting files causes extremely high disk write rates</td>
+      </tr>
+      <tr>
+        <td>Disk Read Speed (MB/s)</td>
+        <td>How fast data is being read from your drive</td>
+        <td>High disk read with high network upload: classic indicator of data exfiltration (stealing files off your machine)</td>
+      </tr>
+      <tr>
+        <td>Network Upload (MB/s)</td>
+        <td>How much data is leaving your machine per second</td>
+        <td>Unexpected large upload spike: your data may be being stolen (exfiltrated) to an attacker's server</td>
+      </tr>
+      <tr>
+        <td>Network Download (MB/s)</td>
+        <td>How much data is arriving on your machine per second</td>
+        <td>Large download while nothing is being installed: malware downloading additional tools (called "staging")</td>
+      </tr>
+      <tr>
+        <td>System Uptime</td>
+        <td>How long since the computer was last restarted</td>
+        <td>Some implants/rootkits activate after a reboot; very long uptimes with unusual activity may indicate a persistent compromise</td>
+      </tr>
+      <tr>
+        <td>Process Count</td>
+        <td>Number of programs currently running</td>
+        <td>Sudden large increase: malware that spawns many child processes (e.g. a worm spreading itself)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="sst">The Technology Behind Live Telemetry — WebSockets</h3>
+  <p>
+    Normal web pages use HTTP — a one-way conversation where the browser asks a question and the server 
+    answers, then the connection closes. To get new data, the browser must ask again (refresh).
+  </p>
+  <p>
+    HIDS Sentinel uses <strong>WebSocket</strong> instead — a two-way permanent connection that stays 
+    open. Think of it as a phone call rather than sending letters. Once the browser "dials in", the server 
+    can push data at any moment without waiting to be asked. This is why the graphs update in real-time 
+    and alert notifications appear immediately — the server is constantly talking to the browser through 
+    this always-open channel.
+  </p>
+
+  <div class="ib green">
+    <div class="ib-title">📊 How Static Hardware Info is Also Collected at Startup</div>
+    When the server first starts, <span class="mono">monitor.py</span> also reads static machine information 
+    from the Windows Registry (no admin rights needed): CPU model name (<span class="mono">HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0</span>), 
+    total RAM, system manufacturer (e.g. "ASUSTeK COMPUTER INC."), and model name (e.g. "ROG Strix"). 
+    This data only changes if hardware is replaced, so it is cached once at startup and served 
+    instantly to the dashboard — no repeated reads needed.
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 9</span></div>
+</div>
+
+<!-- ══════════ PAGE 10 — MACHINE LEARNING ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 8 — Machine Learning Implementation</span></div>
+
+  <h2 class="st">8. Machine Learning — How AI is Used to Detect Threats</h2>
+
+  <div class="ib purple">
+    <div class="ib-title">🧠 What is Machine Learning — The Non-Technical Explanation</div>
+    Machine learning means teaching a computer to recognise patterns by showing it examples, 
+    rather than writing out every possible rule by hand. A spam email filter that learned to 
+    recognise junk mail by reading 100,000 examples of spam and non-spam is machine learning. 
+    A face recognition system that learned what faces look like from millions of photos is ML. 
+    In HIDS Sentinel, we teach the ML model what "normal" computer processes look like — so that 
+    when something abnormal runs, the model can flag it, even if that specific malware has 
+    never been seen before (a "zero-day" threat).
+  </div>
+
+  <h3 class="sst">The Three-Layer Threat Intelligence System</h3>
+  <p>
+    Process analysis in HIDS Sentinel uses three complementary layers. If the first layer flags a process, 
+    the result is used. If not, it falls through to the next layer. Each layer has different strengths:
+  </p>
+
+  <div class="ml-layers">
+    <div class="ml-layer l1">
+      <div class="ml-lh">🤖 Layer 1 — Google Gemini AI (Cloud-based Contextual Intelligence)</div>
+      <p style="margin:0;font-size:9pt;">
+        <strong>Model:</strong> gemini-2.5-flash via Google's Generative Language API<br>
+        <strong>When used:</strong> When a GEMINI_API_KEY environment variable is configured<br>
+        <strong>How it works:</strong> For each candidate process (one that triggered initial suspicion), 
+        the system sends a JSON payload to Gemini containing: process name, full command-line arguments, 
+        CPU %, memory %, and the host context (machine name, OS version). Gemini's prompt instructs it 
+        to act as a "host intrusion detection assistant" and return a structured JSON response with 
+        <span class="mono">suspicious</span> (true/false), <span class="mono">confidence</span> (0–100), 
+        <span class="mono">category</span> (e.g. "high-risk tooling"), and a plain-English 
+        <span class="mono">reason</span>. Temperature is set to 0.1 to minimise hallucination — 
+        the response is factual and deterministic. 
+        <strong>Advantage:</strong> Understands context — knows that PowerShell running 
+        <span class="mono">Get-Process</span> is different from PowerShell running 
+        <span class="mono">-EncodedCommand ZQBjAG...</span> (encoded attack payload).
+      </p>
+    </div>
+
+    <div class="ml-layer l2">
+      <div class="ml-lh">🌲 Layer 2 — Isolation Forest (Local ML Model, No Internet Needed)</div>
+      <p style="margin:0;font-size:9pt;">
+        <strong>Model:</strong> <span class="mono">sklearn.ensemble.IsolationForest</span> with <span class="mono">contamination=0.15</span><br>
+        <strong>When used:</strong> When no Gemini API key is available (offline mode)<br>
+        <strong>What is Isolation Forest?</strong> Isolation Forest is an unsupervised anomaly detection algorithm. 
+        It works by randomly partitioning data points using decision trees. Normal (common) data points require 
+        many partitions to isolate — they are "buried" in clusters with similar data. 
+        Anomalous (rare/unusual) points are isolated in very few steps because they have unusual feature values 
+        and don't cluster with anything else. The algorithm assigns an anomaly score — the further below zero, 
+        the more anomalous.<br><br>
+        <strong>The 6 features extracted from each process:</strong><br>
+        [1] CPU usage % &nbsp; [2] Memory usage % &nbsp; [3] Command-line length (longer commands = more suspicious) &nbsp;
+        [4] High-risk tool flag (1 if name is mimikatz/psexec/rclone, else 0) &nbsp;
+        [5] Shell process flag (1 if cmd.exe/powershell.exe) &nbsp;
+        [6] Suspicious argument count (count of patterns like "-encodedcommand", "-w hidden", "downloadstring")<br><br>
+        <strong>Training data:</strong> Trained on 8 synthetic vectors representing typical benign 
+        processes (e.g. [0.5% CPU, 1.2% RAM, cmd_len=25, no flags]). Contamination=0.15 means the model 
+        expects roughly 15% of processes it sees to be anomalous.<br><br>
+        <strong>Output:</strong> If prediction == -1 (anomaly), returns suspicious=True with a confidence 
+        score calculated from the anomaly score: <span class="mono">confidence = min(98, max(72, 85 - (score × 50)))</span>
+      </p>
+    </div>
+
+    <div class="ml-layer l3">
+      <div class="ml-lh">📋 Layer 3 — Rule-Based Fallback (Zero Dependencies)</div>
+      <p style="margin:0;font-size:9pt;">
+        <strong>When used:</strong> If both Gemini and Isolation Forest are unavailable, or for quick pre-screening<br>
+        <strong>How it works:</strong> A curated dictionary of known high-risk tool names 
+        (<span class="mono">mimikatz.exe</span>, <span class="mono">psexec.exe</span>, 
+        <span class="mono">rclone.exe</span>, <span class="mono">certutil.exe</span>, 
+        <span class="mono">mshta.exe</span>, etc.) and suspicious command-line argument patterns 
+        (<span class="mono">-encodedcommand</span>, <span class="mono">-noprofile -w hidden</span>, 
+        <span class="mono">downloadstring</span>, <span class="mono">bypass</span>) are checked against 
+        each process. Matches return immediate suspicious=True with confidence 74–92% based on 
+        how specific the match is. This layer requires no machine learning libraries and works 
+        instantly — it handles the most obvious threats.
+      </p>
+    </div>
+
+    <div class="ml-layer l4">
+      <div class="ml-lh">📊 Statistical Baseline Anomaly Scorer (For Events, Not Processes)</div>
+      <p style="margin:0;font-size:9pt;">
+        <strong>Module:</strong> <span class="mono">detector.py</span> — ThreatDetector class<br>
+        <strong>How it works:</strong> When any security event is submitted (e.g. login failure, 
+        file modification, network connection), the system compares 5 numerical features of that 
+        event against a baseline built from the last 1,000 stored events: 
+        failed_login_count, file_modifications, outbound_connections, data_transfer_mb, new_services_installed.<br><br>
+        For each feature: <span class="mono">z_score = |current_value - baseline_mean| / baseline_std</span><br>
+        If z_score ≥ 2.5 (2.5 standard deviations above the average), the feature is flagged as anomalous 
+        and a reason is added. This is exactly the same statistical method used in financial fraud detection 
+        — a credit card company flags a transaction if your spending suddenly deviates by 2.5+ standard 
+        deviations from your normal pattern.
+      </p>
+    </div>
+  </div>
+
+  <h3 class="sst">How the Final Alert Score is Calculated</h3>
+  <p>The <span class="mono">ThreatDetector.analyze()</span> method combines both scores mathematically:</p>
+  <div class="ib amber">
+    <strong>Total Score = (Statistical Anomaly Score × 0.45) + (Rule-Based Score × 0.75)</strong><br><br>
+    The rule-based component has a higher weight (0.75) because explicit rule matches (e.g. a known hacker 
+    tool running) are more reliable than statistical anomalies. The anomaly component (0.45) still contributes 
+    significantly — it catches behaviours that rules haven't anticipated.<br><br>
+    <strong>Severity thresholds:</strong> &nbsp;
+    Score ≥ 75 → Critical &nbsp;|&nbsp; ≥ 55 → High &nbsp;|&nbsp; ≥ 35 → Medium &nbsp;|&nbsp; Below 35 → Low
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 10</span></div>
+</div>
+
+<!-- ══════════ PAGE 11 — MARKET DIFFERENTIATION ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 4 — Market Differentiation</span></div>
+
+  <h2 class="st">4. How HIDS Sentinel Differs from Existing Security Products</h2>
+
+  <p>
+    The cybersecurity software market is divided into two categories: 
+    consumer products (affordable but limited) and enterprise tools (powerful but extremely expensive). 
+    HIDS Sentinel is designed to fill the gap between them.
+  </p>
+
+  <h3 class="sst">Consumer Products (Antivirus Software)</h3>
+  <p>
+    Products like Windows Defender, Norton, Kaspersky, and Malwarebytes are designed for ordinary home users. 
+    They are easy to install and affordable (or free), but they have significant limitations:
+  </p>
+  <ul class="bl">
+    <li>They rely almost entirely on <strong>signature databases</strong> — they can only detect malware they have already seen. A brand-new malware variant (called a "zero-day") can bypass them completely.</li>
+    <li>They do not inspect <strong>firmware or hardware</strong> — they cannot tell you if your BIOS is outdated, your TPM is missing, or Secure Boot is disabled.</li>
+    <li>They produce <strong>no security score or posture report</strong> — you have no way to know how exposed your machine is overall.</li>
+    <li>They do not map threats to <strong>MITRE ATT&amp;CK</strong> techniques.</li>
+    <li>They do not provide a <strong>live dashboard</strong> — there is no way to watch CPU/network graphs and correlate spikes with processes.</li>
+  </ul>
+
+  <h3 class="sst">Enterprise SIEM Tools</h3>
+  <p>
+    Products like Splunk, IBM QRadar, Microsoft Sentinel, and Elastic SIEM are used by large corporations. 
+    They are extremely powerful but completely inaccessible for individuals and small organisations:
+  </p>
+  <ul class="bl">
+    <li><strong>Cost:</strong> Splunk Enterprise costs ₹10–50 Lakh per year. Microsoft Sentinel charges per gigabyte of data ingested. These are not options for a student, clinic, or small business.</li>
+    <li><strong>Complexity:</strong> Enterprise SIEMs require weeks of configuration, dedicated servers, and a trained security team to operate. A small business owner cannot set one up.</li>
+    <li><strong>No local hardware inspection:</strong> These tools analyse log files and network traffic — they generally cannot inspect your BIOS, read your TPM chip, or tell you about your startup programs.</li>
+  </ul>
+
+  <h3 class="sst">Full Feature Comparison Table</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th class="tc">Windows Defender / Antivirus</th>
+        <th class="tc">Enterprise SIEM (Splunk etc.)</th>
+        <th class="tc">HIDS Sentinel</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Cost</td><td class="tc">Free – ₹8,000/yr</td><td class="tc tr">₹10–50 Lakh/yr</td><td class="tc tg">Free / Open Source</td></tr>
+      <tr><td>Zero-day (unknown malware) detection</td><td class="tc tr">❌ Signature only</td><td class="tc tg">✅ (expensive ML add-ons)</td><td class="tc tg">✅ Isolation Forest ML</td></tr>
+      <tr><td>BIOS / Firmware inspection</td><td class="tc tr">❌</td><td class="tc tr">❌</td><td class="tc tg">✅ Registry + UAC scan</td></tr>
+      <tr><td>TPM chip status check</td><td class="tc tr">❌</td><td class="tc tr">❌</td><td class="tc tg">✅ PnP + Elevated</td></tr>
+      <tr><td>Secure Boot verification</td><td class="tc tr">❌</td><td class="tc tr">❌</td><td class="tc tg">✅ Registry + UAC</td></tr>
+      <tr><td>Live browser dashboard</td><td class="tc tr">❌</td><td class="tc ta">✅ (complex setup)</td><td class="tc tg">✅ No setup needed</td></tr>
+      <tr><td>Security Posture Score</td><td class="tc tr">❌</td><td class="tc tr">❌</td><td class="tc tg">✅ 0–100 with grade</td></tr>
+      <tr><td>MITRE ATT&amp;CK tagging</td><td class="tc tr">❌</td><td class="tc tg">✅ (advanced config)</td><td class="tc tg">✅ Automatic</td></tr>
+      <tr><td>YARA malware scanning</td><td class="tc tr">❌</td><td class="tc ta">Add-on only</td><td class="tc tg">✅ Built-in</td></tr>
+      <tr><td>AI process analysis</td><td class="tc tr">❌</td><td class="tc ta">Expensive add-on</td><td class="tc tg">✅ Gemini + Isolation Forest</td></tr>
+      <tr><td>File Integrity Monitoring</td><td class="tc tr">❌ (basic only)</td><td class="tc tg">✅ (with agent)</td><td class="tc tg">✅ Built-in FIM</td></tr>
+      <tr><td>SOAR auto-response</td><td class="tc tr">❌</td><td class="tc tg">✅ (expensive)</td><td class="tc tg">✅ Built-in</td></tr>
+      <tr><td>Setup time</td><td class="tc tg">Minutes</td><td class="tc tr">Weeks</td><td class="tc tg">One command</td></tr>
+      <tr><td>Works fully offline</td><td class="tc ta">Partially</td><td class="tc tr">❌ Cloud dependent</td><td class="tc tg">✅ Full offline mode</td></tr>
+      <tr><td>Required IT expertise</td><td class="tc tg">None</td><td class="tc tr">Full security team</td><td class="tc tg">Basic computer skills</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ib cyan" style="margin-top:8px;">
+    <div class="ib-title">🎯 The Market Position — Layman Summary</div>
+    HIDS Sentinel occupies a unique position: it has the simplicity and low cost of a consumer antivirus 
+    but the depth and intelligence of an enterprise security tool. It is the only freely available solution 
+    that combines real-time ML process analysis, firmware-level inspection, YARA malware scanning, 
+    SOAR automation, MITRE ATT&amp;CK tagging, and a live browser dashboard — all accessible to anyone who 
+    can run a Python script.
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 11</span></div>
+</div>
+
+<!-- ══════════ PAGE 12 — REAL WORLD USE CASES ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 7 — Real-World Applications</span></div>
+
+  <h2 class="st">7. Where HIDS Sentinel Can Be Used in Real Life</h2>
+  <p>
+    HIDS Sentinel is a practical tool that addresses real security needs across many different 
+    types of organisations and individuals. Here are detailed use-case scenarios:
+  </p>
+
+  <h3 class="sst">🏥 Scenario 1 — A Healthcare Clinic</h3>
+  <div class="ib red">
+    <div class="ib-title">The Problem Without HIDS Sentinel</div>
+    In 2023, AIIMS Delhi was hit by ransomware. The attack encrypted patient records, disrupted 
+    emergency services, and took weeks to recover from. The early warning signs — unusual disk 
+    write activity, a new suspicious process, registry modifications — were all there but no 
+    one was watching for them.
+  </div>
+  <p>
+    With HIDS Sentinel running on clinic computers: The File Integrity Monitor would have fired an 
+    alert the moment the ransomware began encrypting the first files (disk write spike + file hash 
+    changes). The Process Scanner would have flagged the ransomware process as anomalous because its 
+    CPU usage, disk write rate, and command patterns do not match any normal office software. 
+    The SOAR module could automatically terminate the process before the encryption spread. 
+    The administrator would receive an immediate alert on their phone. Total damage: potentially zero.
+  </p>
+
+  <h3 class="sst">🎓 Scenario 2 — A University Computer Lab</h3>
+  <p>
+    University labs contain student research data, administrative databases, and often serve as 
+    launching pads for attacks on the wider university network. Common threats include students 
+    installing cryptocurrency miners (which use 100% CPU, costing the university electricity 
+    and slowing machines), or attackers compromising lab machines to access the university network.
+  </p>
+  <p>
+    HIDS Sentinel's Telemetry dashboard would immediately show the CPU spike from a crypto-miner. 
+    The Persistence Scanner would catch the miner registering itself in the Registry Run key to 
+    survive reboots. The Network Scanner would show the miner's mining pool connection as an 
+    unusual outbound connection on port 3333 (the standard mining pool port).
+  </p>
+
+  <h3 class="sst">🏢 Scenario 3 — Small Business / Startup</h3>
+  <p>
+    A small startup has 10 employees sharing a Windows server and several work laptops. They cannot 
+    afford a dedicated IT security team. An attacker sends a phishing email — an employee clicks a 
+    malicious attachment that installs a remote access tool. Without HIDS Sentinel: the attacker 
+    has silent, persistent access. With HIDS Sentinel: The new process spawned by the attachment is 
+    flagged by the AI classifier. The new Registry Run key added for persistence is caught by the 
+    Persistence Scanner. The outbound connection to the attacker's command-and-control server is 
+    shown in the Network Scanner. The MITRE ATT&amp;CK tag "T1059 Command Execution" is applied to the alert.
+  </p>
+
+  <h3 class="sst">🏛 Scenario 4 — Government / Public Sector Offices</h3>
+  <p>
+    Government computers store sensitive citizen data, policy documents, and classified information. 
+    An insider threat (a disgruntled employee copying files to a USB drive or uploading to the cloud) 
+    would be detected by: the Network Scanner (large upload spike), File Integrity Monitor (mass file 
+    reads), and USB device logging (the Device Scanner recording the USB insertion event with 
+    timestamp, device name, and serial number). The SOAR module can immediately block further 
+    USB storage access on that machine.
+  </p>
+
+  <h3 class="sst">👨‍💻 Scenario 5 — Individual Developers, Journalists, and Activists</h3>
+  <p>
+    High-value individuals who store sensitive information on personal computers are frequent targets 
+    of commercial spyware (like Pegasus or FinFisher). HIDS Sentinel's Firmware Scanner would detect 
+    if BIOS settings are tampered with. The Process Scanner would flag spyware processes that 
+    access the microphone or camera in the background. The FIM module would alert if any critical 
+    system file is modified — a common sign of rootkit installation.
+  </p>
+
+  <h3 class="sst">🔬 Scenario 6 — Cybersecurity Education and Training</h3>
+  <p>
+    HIDS Sentinel is an excellent learning tool for cybersecurity students. Instructors can:
+  </p>
+  <ul class="bl">
+    <li>Use the YARA scanner to scan sample malware files downloaded in a controlled lab environment and observe exactly which patterns matched and why</li>
+    <li>Use the Event Simulator to generate fake security events (brute-force login, privilege escalation) and watch how the detector calculates scores and creates alerts in real-time</li>
+    <li>Study the MITRE ATT&amp;CK mappings in alerts to understand how academic techniques map to real-world events</li>
+    <li>Examine the ML classifier's confidence scores and understand why it flagged or cleared specific processes</li>
+  </ul>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 12</span></div>
+</div>
+
+<!-- ══════════ PAGE 13 — FUTURE ROADMAP ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Section 4 — Future Implementation Roadmap</span></div>
+
+  <h2 class="st">4. Future Implementation — Where the Project Goes Next</h2>
+  <p>
+    HIDS Sentinel version 1 is a fully functional security monitoring system for a single Windows machine. 
+    The following roadmap outlines planned improvements in priority order, from most important to most aspirational:
+  </p>
+
+  <h3 class="sst">🚀 Phase 2 — Near-Term (3–6 Months)</h3>
+  <div class="fg">
+    <div class="fi">
+      <div class="fi-title">🌐 Multi-Machine Agent Network</div>
+      <div class="fi-body">
+        Currently, HIDS Sentinel monitors the machine it runs on. The agent framework 
+        (agent_manager.py) is already built but not yet deployed. Phase 2 will add lightweight 
+        Python agents that can be installed on any machine in the network. Each agent sends its 
+        telemetry and scan results to the central HIDS Sentinel server, allowing one administrator 
+        to monitor 50 machines from a single dashboard. Each machine appears as a card in the 
+        "Agent Network" view, showing its IP, OS, online status, and posture score.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">📱 Mobile Push Notifications</div>
+      <div class="fi-body">
+        When a Critical alert fires at 3 AM, no one is watching the dashboard. 
+        Phase 2 will integrate Firebase Cloud Messaging (FCM) to send push notifications 
+        to a companion Android/iOS app. The notification will show the alert severity, 
+        machine name, and a one-line summary — allowing the security administrator to 
+        take immediate action even when away from the office.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">🧠 Trained ML Model (Real Data, Not Synthetic)</div>
+      <div class="fi-body">
+        The current Isolation Forest is trained on 8 synthetic data points — adequate for a 
+        prototype but not optimal for production. Phase 2 will add a training pipeline that 
+        collects real process snapshots from the monitored machine over the first 7 days, 
+        labels them as benign (no threats detected), and retrains the model. 
+        The result is a personalised ML model that knows exactly what "normal" looks like 
+        on that specific machine — drastically reducing false positives.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">🔁 Automated Incident Response Playbooks</div>
+      <div class="fi-body">
+        The current SOAR module can terminate a process or block an IP. 
+        Phase 2 will introduce full "playbooks" — pre-defined automated response sequences 
+        for specific attack types. Example Ransomware Playbook: (1) Terminate flagged process, 
+        (2) Snapshot running processes to a log, (3) Isolate the machine from the network 
+        by disabling the network adapter, (4) Alert administrator with full context, 
+        (5) Begin damage assessment scan. All within seconds — no human needed.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sst">🔭 Phase 3 — Medium-Term (6–18 Months)</h3>
+  <div class="fg">
+    <div class="fi">
+      <div class="fi-title">🐧 Linux &amp; macOS Support</div>
+      <div class="fi-body">
+        The current system is Windows-only because it uses Windows Registry, 
+        PowerShell, and Win32 APIs. Linux support will replace these with: 
+        /proc filesystem reads (process data), journald/syslog for event logs, 
+        and systemd for startup services. macOS support will use launchd for 
+        persistence and IOKit for hardware. The React dashboard and MongoDB 
+        backend are already cross-platform.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">☁ Cloud Event Archive</div>
+      <div class="fi-body">
+        If an attacker compromises a machine completely, the first thing they do 
+        is delete the local logs. Phase 3 will add encrypted cloud synchronisation 
+        of all events to a user-controlled cloud storage (AWS S3 or similar) in 
+        near real-time. Even if the local machine is wiped, a forensic record 
+        exists in the cloud — admissible as evidence and useful for incident reconstruction.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">🕵 Natural Language Threat Hunting</div>
+      <div class="fi-body">
+        Security analysts currently query MongoDB directly using technical syntax. 
+        Phase 3 will add a natural language interface powered by a language model: 
+        type "Show me all PowerShell processes that ran after midnight this week" 
+        and the system converts it to a MongoDB query automatically. 
+        This makes the tool accessible to non-technical security managers who 
+        need to investigate incidents but cannot write database queries.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">📊 Compliance Report Generation</div>
+      <div class="fi-body">
+        Many businesses must comply with security standards: ISO 27001, 
+        NIST Cybersecurity Framework, PCI-DSS (for payment card handling), 
+        or India's DPDP Act. Phase 3 will map every HIDS Sentinel finding and 
+        control to the relevant compliance framework and automatically generate 
+        a gap analysis report — showing which requirements are met and which 
+        need attention. This would make HIDS Sentinel directly useful in 
+        preparing for compliance audits.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sst">🌟 Phase 4 — Long-Term Vision (18+ Months)</h3>
+  <div class="fg">
+    <div class="fi">
+      <div class="fi-title">🤝 Threat Intelligence Feed Integration</div>
+      <div class="fi-body">
+        Integrate with open threat intelligence sources (VirusTotal, AlienVault OTX, 
+        MISP) to automatically check file hashes, IP addresses, and domain names 
+        against global threat databases. A process connecting to an IP address 
+        already known to be a command-and-control server would be flagged 
+        immediately, before any local analysis is even needed.
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-title">🏗 SaaS / Multi-Tenant Deployment</div>
+      <div class="fi-body">
+        Package HIDS Sentinel as a Software-as-a-Service product where managed 
+        security service providers (MSSPs) can offer it to multiple client 
+        organisations simultaneously. Each organisation gets isolated data 
+        storage and a customised dashboard with their branding. 
+        This is the commercial productisation path for the project.
+      </div>
+    </div>
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 13</span></div>
+</div>
+
+<!-- ══════════ PAGE 14 — SUMMARY ══════════ -->
+<div class="page">
+  <div class="ph"><span class="pname">HIDS Sentinel</span><span>Final Summary &amp; Quick Reference</span></div>
+
+  <h2 class="st">Complete Project Summary — At a Glance</h2>
+
+  <div class="sum-grid">
+    <div class="sum-box" style="background:#dbeafe;border:1px solid #93c5fd;">
+      <h4 style="color:#1d4ed8;">🛠 Built With</h4>
+      <ul style="color:#1e40af;">
+        <li>Python 3.13 — backend language</li>
+        <li>FastAPI — web server framework</li>
+        <li>React.js (Vite) — browser dashboard</li>
+        <li>MongoDB Atlas — event/alert database</li>
+        <li>scikit-learn — Isolation Forest ML</li>
+        <li>Google Gemini 2.5 Flash — AI analysis</li>
+        <li>YARA — malware rule engine</li>
+        <li>bcrypt + JWT — authentication</li>
+        <li>WebSocket — live data streaming</li>
+        <li>ReportLab + python-docx — PDF/Word reports</li>
+      </ul>
+    </div>
+    <div class="sum-box" style="background:#f0fdf4;border:1px solid #86efac;">
+      <h4 style="color:#15803d;">✅ Threats Detected</h4>
+      <ul style="color:#166534;">
+        <li>Known malware (YARA signatures)</li>
+        <li>Unknown malware (Isolation Forest ML)</li>
+        <li>Firmware/BIOS tampering</li>
+        <li>Brute-force login attacks</li>
+        <li>Ransomware (FIM + disk spike)</li>
+        <li>Suspicious startup entries</li>
+        <li>Data exfiltration (network upload spike)</li>
+        <li>Privilege escalation</li>
+        <li>Malicious scheduled tasks</li>
+        <li>Vulnerable security settings</li>
+      </ul>
+    </div>
+    <div class="sum-box" style="background:#f5f3ff;border:1px solid #c084fc;">
+      <h4 style="color:#7c3aed;">📈 By The Numbers</h4>
+      <ul style="color:#6d28d9;">
+        <li>19 Python backend modules</li>
+        <li>8 independent security scanners</li>
+        <li>3 AI/ML detection layers</li>
+        <li>MITRE ATT&amp;CK — 14 tactic categories</li>
+        <li>Security score: 0–100 with A–F grade</li>
+        <li>Live update every 3 seconds</li>
+        <li>Posture findings: clickable + detailed popup</li>
+        <li>YARA rules: 4 malware families</li>
+        <li>6 ML features per process analysed</li>
+        <li>40+ REST API endpoints</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="st">The Three Key Innovations</h2>
+
+  <div class="diff-row">
+    <div class="di">🔬</div>
+    <div class="dt">
+      <strong>Innovation 1 — Firmware-Level Security Visibility (No Equivalent in Consumer Tools)</strong>
+      <span>HIDS Sentinel is one of very few free tools that inspects the BIOS firmware, TPM chip, and Secure Boot 
+      state directly from the Windows Registry — no external tools required. With UAC elevation, it accesses 
+      full hardware-level security data that even paid antivirus tools cannot see. This matters because 
+      modern "firmware implants" (like the Equation Group's tools exposed by Snowden documents) hide 
+      below the operating system where no antivirus can reach — only a firmware inspector can detect them.</span>
+    </div>
+  </div>
+
+  <div class="diff-row">
+    <div class="di">🧠</div>
+    <div class="dt">
+      <strong>Innovation 2 — Dual-Intelligence Process Analysis (ML + Generative AI)</strong>
+      <span>The combination of a local unsupervised ML model (Isolation Forest) with a cloud LLM (Gemini 2.5 Flash) 
+      for process threat analysis is a novel approach. The local model catches statistical anomalies instantly 
+      with zero internet dependency. The cloud AI adds contextual reasoning that no rule set can replicate — 
+      understanding, for example, that the same PowerShell process is benign in one context and an attack in another. 
+      The fallback chain (Gemini → Isolation Forest → Rule-based) ensures no single point of failure.</span>
+    </div>
+  </div>
+
+  <div class="diff-row">
+    <div class="di">🖱</div>
+    <div class="dt">
+      <strong>Innovation 3 — Clickable Security Findings with Exact Item Drill-Down</strong>
+      <span>Traditional security tools display alert counts (e.g. "1 suspicious startup entry"). 
+      HIDS Sentinel makes every finding card clickable — clicking reveals the exact item: name, 
+      registry key location, full command-line path, and why it was flagged. This "drill-down" 
+      approach means even a non-technical user can immediately see what to remove and where to find it, 
+      rather than needing to know how to navigate the Windows Registry themselves.</span>
+    </div>
+  </div>
+
+  <h2 class="st">Conclusion</h2>
+  <p>
+    HIDS Sentinel demonstrates that enterprise-grade host security monitoring does not require 
+    an enterprise budget or an expert team. By combining modern Python libraries, a React.js 
+    live dashboard, machine learning anomaly detection, generative AI process intelligence, 
+    YARA malware scanning, and deep Windows system introspection — all in a single open-source 
+    project — the team has built a tool that is genuinely useful in real-world security scenarios.
+  </p>
+  <p>
+    The project serves as both a practical security tool and an academic demonstration of how 
+    multiple data science disciplines (real-time data streaming, unsupervised machine learning, 
+    statistical anomaly detection, API development, and natural language AI) can be integrated 
+    into a single, coherent application that solves a meaningful real-world problem.
+  </p>
+
+  <div class="ib green">
+    <div class="ib-title">🎯 One-Sentence Summary for Any Audience</div>
+    HIDS Sentinel is a free, AI-powered security dashboard that gives any Windows user 
+    the same level of threat detection and visibility that large corporations spend 
+    millions of rupees to achieve — all accessible from a web browser in under 5 minutes.
+  </div>
+
+  <div class="pf"><span>HIDS Sentinel — Detailed Project Report</span><span>Page 14 — End of Report</span></div>
+</div>
+
+</body>
+</html>

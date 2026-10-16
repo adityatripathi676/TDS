@@ -1,0 +1,18 @@
+[Unit]
+Description=AI-HIDS Sentinel Host Protection Agent & Threat Detection System
+After=network.target syslog.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/ai-hids
+ExecStart=/usr/bin/python3 /opt/ai-hids/run.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=ai-hids-sentinel
+
+[Install]
+WantedBy=multi-user.target

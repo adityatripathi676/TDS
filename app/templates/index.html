@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Driven HIDS Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="layout">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Adaptive Endpoint Defense</p>
+        <h1>AI-Driven HIDS and Threat Detection System</h1>
+        <p class="subtext">
+          Monitor host telemetry, surface risky behavior, and simulate attack activity from a clean local lab dashboard.
+        </p>
+      </div>
+      <div class="actions">
+        <button id="startMonitorBtn">Start Monitor</button>
+        <button id="scanBtn">Scan Host</button>
+        <button id="stopMonitorBtn" class="ghost">Stop Monitor</button>
+        <button data-mode="benign">Simulate Benign</button>
+        <button data-mode="mixed">Simulate Mixed</button>
+        <button data-mode="attack" class="danger">Simulate Attack</button>
+        <button id="resetBtn" class="ghost">Reset Data</button>
+      </div>
+    </section>
+
+    <section class="metrics" id="metricsGrid"></section>
+
+    <section class="panel-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Live Host Overview</h2>
+          <span id="monitorStateBadge" class="badge neutral">Unknown</span>
+        </div>
+        <div id="systemOverview" class="overview-grid"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Monitor Status</h2>
+        </div>
+        <div id="monitorStatus" class="stack"></div>
+      </article>
+    </section>
+
+    <section class="panel-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Recent Alerts</h2>
+          <span id="alertCountBadge" class="badge">0</span>
+        </div>
+        <div id="alertsList" class="stack"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Recent Events</h2>
+        </div>
+        <div id="eventsList" class="stack compact"></div>
+      </article>
+    </section>
+
+    <section class="panel-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Suspicious Processes</h2>
+        </div>
+        <div id="suspiciousProcesses" class="stack"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Top Processes</h2>
+        </div>
+        <div id="topProcesses" class="stack"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Adaptive Baseline</h2>
+      </div>
+      <div id="baselineGrid" class="baseline-grid"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

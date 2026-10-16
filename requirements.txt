@@ -1,0 +1,17 @@
+fastapi==0.115.12
+uvicorn==0.34.1
+jinja2==3.1.6
+psutil==7.1.0
+python-docx==1.1.2
+reportlab==4.2.5
+pywin32==308; sys_platform == "win32"
+watchdog==6.0.0
+scikit-learn==1.6.1
+numpy==2.2.3
+
+# ── Security hardening (Phase 2) ──────────────────────────────────────────────
+motor==3.6.0                    # Async MongoDB driver (pymongo included)
+bcrypt==4.2.1                   # Password hashing (OWASP recommended)
+python-jose[cryptography]==3.3.0 # JWT with algorithm whitelist enforcement
+slowapi==0.1.9                   # Rate limiting for FastAPI
+python-dotenv==1.0.1             # .env file loading
